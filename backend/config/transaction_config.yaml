@@ -1,0 +1,24 @@
+transaction_types:
+  income: Money received or earned
+  expense: Money spent or paid
+
+categories:
+  income:
+    salary: Monthly salary or regular job income
+    freelance: Freelance work or side job income
+    investment: Investment return, dividend, or profit
+    gift: Money received as gift
+    other: Other income
+
+  expense:
+    food: Meals, drinks, groceries, coffee
+    transport: Train, taxi, fuel, bus, travel fare
+    shopping: Clothes, gadgets, personal items
+    housing: Rent, condo fee, home expense
+    utilities: Electricity, water, internet, phone bill
+    health: Medicine, hospital, fitness, healthcare
+    education: Course, book, learning material
+    entertainment: Movie, game, music, activity
+    subscription: Netflix, Spotify, app subscription
+    travel: Hotel, flight, trip expense
+    other: Other expense
