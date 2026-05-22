@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Request, HTTPException
 
-import json
 from urllib.parse import parse_qs, unquote
 
 from linebot.v3 import WebhookHandler
@@ -10,9 +9,10 @@ from linebot.v3.webhooks import MessageEvent, TextMessageContent, PostbackEvent
 from app.core.config import settings
 from app.schemas.transaction_schema import LineTransactionCreate
 from app.services.ai_parser_service import parse_transaction_text
-from app.services.line_service import reply_text, reply_confirmation_card
+from app.services.line_service import reply_text, reply_confirmation_card, reply_summary_card
 from app.repositories.supabase_repository import SupabaseRepository
 from app.services.pending_transaction_store import get_pending_transaction, delete_pending_transaction
+from app.utils.date_utils import get_today_range, get_current_month_range
 
 
 router = APIRouter()
@@ -54,10 +54,48 @@ def handle_text_message(event):
     line_user_id = event.source.user_id
     reply_token = event.reply_token
 
-    print("User message:", user_text)
-    print("LINE user ID:", line_user_id)
+    # print("User message:", user_text)
+    # print("LINE user ID:", line_user_id)
+
 
     try:
+
+        lower_text = user_text.lower()
+
+        if lower_text in ["วันนี้", "สรุปวันนี้", "today"]:
+            start_date, end_date = get_today_range()
+
+            summary = supabase_repo.get_summary(
+                line_user_id = line_user_id,
+                start_date=start_date,
+                end_date=end_date
+            )
+
+            reply_summary_card(
+                reply_token=reply_token,
+                title="สรุปวันนี้",
+                summary=summary
+            )
+
+            return
+        
+        if lower_text in ["เดือนนี้", "สรุปเดือนนี้", "month"]:
+            start_date, end_date = get_current_month_range()
+            
+            summary = supabase_repo.get_summary(
+                line_user_id=line_user_id,
+                start_date=start_date,
+                end_date=end_date
+            )
+
+            reply_summary_card(
+                reply_token=reply_token,
+                title="สรุปเดือนนี้",
+                summary=summary
+            )
+
+            return
+
         parsed = parse_transaction_text(user_text)
 
         transaction = {

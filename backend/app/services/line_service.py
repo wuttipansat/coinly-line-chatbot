@@ -161,3 +161,106 @@ def row_item(label: str, value: str) -> dict:
             }
         ]
     }
+
+
+
+def summary_row(label: str, value: str, bold: bool = False) -> dict:
+    return {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+            {
+                "type": "text",
+                "text": label,
+                "size": "sm",
+                "color": "#64748B",
+                "flex": 3,
+            },
+            {
+                "type": "text",
+                "text": value,
+                "size": "sm",
+                "color": "#111827",
+                "align": "end",
+                "weight": "bold" if bold else "regular",
+                "flex": 4,
+            },
+        ],
+    }
+
+
+def reply_summary_card(
+    reply_token: str,
+    title: str,
+    summary: dict,
+) -> None:
+    total_income = float(summary["total_income"])
+    total_expense = float(summary["total_expense"])
+    balance = float(summary["balance"])
+    transaction_count = summary["transaction_count"]
+
+    balance_color = "#16A34A" if balance >= 0 else "#DC2626"
+
+    flex_content = {
+        "type": "bubble",
+        "size": "mega",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "Coinly Summary",
+                    "weight": "bold",
+                    "size": "sm",
+                    "color": "#64748B",
+                },
+                {
+                    "type": "text",
+                    "text": title,
+                    "weight": "bold",
+                    "size": "xl",
+                    "color": "#111827",
+                    "wrap": True,
+                },
+                {
+                    "type": "separator",
+                    "margin": "md",
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "sm",
+                    "margin": "md",
+                    "contents": [
+                        summary_row("รายรับรวม", f"{total_income:,.2f} บาท"),
+                        summary_row("รายจ่ายรวม", f"{total_expense:,.2f} บาท"),
+                        summary_row("คงเหลือ", f"{balance:,.2f} บาท", bold=True),
+                        summary_row("จำนวนรายการ", f"{transaction_count} รายการ"),
+                    ],
+                },
+                {
+                    "type": "text",
+                    "text": "ยอดคงเหลือเป็นบวก" if balance >= 0 else "ยอดคงเหลือติดลบ",
+                    "size": "xs",
+                    "color": balance_color,
+                    "margin": "md",
+                },
+            ],
+        },
+    }
+
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        line_bot_api.reply_message(
+            reply_message_request=ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[
+                    FlexMessage(
+                        alt_text=title,
+                        contents=FlexContainer.from_dict(flex_content),
+                    )
+                ],
+            )
+        )
