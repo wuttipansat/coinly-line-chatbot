@@ -14,27 +14,20 @@ class SupabaseRepository:
             "apikey": self.key,
             "Authorization": f"Bearer {self.key}",
             "Content-Type": "application/json",
-            "Prefer": "return=representation"
+            "Prefer": "return=representation",
         }
-    
-    async def insert_line_transaction(
-            self,
-            transaction: LineTransactionCreate,
-    ) -> dict:
-        
-        payload = transaction.model_dump(mode='json')
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self.base_url}/rest/v1/line_transaction",
-                headers=self.__headers(),
-                json=payload
-            )
+    def insert_line_transaction(self, transaction: LineTransactionCreate) -> dict:
+        payload = transaction.model_dump(mode="json")
+
+        response = httpx.post(
+            f"{self.base_url}/rest/v1/line_transactions",
+            headers=self._headers(),
+            json=payload,
+            timeout=30,
+        )
 
         if response.status_code >= 400:
-            raise Exception(f"Supabase error: {response.text}")
-        
-        return response.json()[0]
-    
+            raise Exception(f"Supabase error: {response.status_code} {response.text}")
 
-    
+        return response.json()[0]
