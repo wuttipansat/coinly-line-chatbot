@@ -7,3 +7,4 @@ httpx
 openai
 line-bot-sdk
 pyyaml
+tzdata
