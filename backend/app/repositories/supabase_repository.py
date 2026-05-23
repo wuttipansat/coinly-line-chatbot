@@ -104,6 +104,13 @@ class SupabaseRepository:
             transaction_id: str,
     ) -> dict | None:
         
+        transaction = self.get_line_transaction_by_id(
+            line_user_id=line_user_id,
+            transaction_id=transaction_id,
+        )
+        if not transaction:
+            return None
+    
         params = [
             ("id", f"eq.{transaction_id}"),
             ("line_user_id", f"eq. {line_user_id}")
@@ -121,11 +128,7 @@ class SupabaseRepository:
                 f"Supabase error: {response.status_code} {response.text}"
             )
         
-        if not response.text:
-            return None
-        
-        data = response.json()
-        return data[0] if data else None
+        return transaction
     
     def get_summary(
             self,
