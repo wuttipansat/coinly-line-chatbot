@@ -111,7 +111,7 @@ class SupabaseRepository:
 
         response = httpx.delete(
             f"{self.base_url}/rest/v1/line_transactions",
-            headers=self.__headers(),
+            headers=self._headers(),
             params=params,
             timeout=30
         )
