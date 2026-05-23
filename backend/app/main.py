@@ -15,6 +15,10 @@ def root():
         "docs": "/docs"
     }
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
 app.include_router(
     line_router,
     prefix="/api/v1/line",
