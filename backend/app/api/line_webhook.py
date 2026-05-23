@@ -9,7 +9,7 @@ from linebot.v3.webhooks import MessageEvent, TextMessageContent, PostbackEvent
 from app.core.config import settings
 from app.schemas.transaction_schema import LineTransactionCreate
 from app.services.ai_parser_service import parse_transaction_text
-from app.services.line_service import reply_text, reply_confirmation_card, reply_summary_card
+from app.services.line_service import reply_text, reply_confirmation_card, reply_summary_card, reply_transaction_list_card, reply_delete_confirm_card
 from app.repositories.supabase_repository import SupabaseRepository
 from app.services.pending_transaction_store import get_pending_transaction, delete_pending_transaction
 from app.utils.date_utils import get_today_range, get_current_month_range
@@ -95,6 +95,20 @@ def handle_text_message(event):
             )
 
             return
+        
+        if lower_text in ["รายการ", "ดูรายการ", "รายการล่าสุด", "recent", "list"]:
+            transactions = supabase_repo.get_line_transactions(
+                line_user_id=line_user_id,
+                limit=10
+            )
+
+            reply_transaction_list_card(
+                reply_token=reply_token,
+                transactions=transactions,
+                title="รายการล่าสุด",
+            )
+
+            return
 
         parsed = parse_transaction_text(user_text)
 
@@ -126,11 +140,13 @@ def handle_text_message(event):
 def handle_postback(event):
     reply_token = event.reply_token
     data = event.postback.data
+    line_user_id = event.source.user_id
 
     try:
         parsed_data = parse_qs(data)
         action = parsed_data.get("action", [""])[0]
         pending_id = parsed_data.get("pending_id", [""])[0]
+        transaction_id = parsed_data.get("transaction_id", [""])[0]
 
         if not pending_id:
             reply_text(reply_token, "ไม่พบรายการที่ต้องการยืนยัน")
@@ -171,12 +187,66 @@ def handle_postback(event):
 
             return
         
+        if action == "request_delete_transaction":
+            if not transaction_id:
+                reply_text(reply_token, "ไม่พบรายการที่ต้องการลบ")
+                return
+            
+            transaction = supabase_repo.get_line_transaction_by_id(
+                line_user_id=line_user_id,
+                transaction_id=transaction_id
+            )
+
+            if not transaction:
+                reply_text(reply_token, "ไม่พบรายการนี้ หรือรายการนี้ถูกลบไปแล้ว")
+                return
+            
+            reply_delete_confirm_card(
+                reply_token=reply_token,
+                transaction=transaction,
+            )
+            return
+        
+
+        if action == "cancel_delete_transaction":
+            reply_text(reply_token, "ยกเลิกการลบรายการ")
+            return
+        
+        if action == "confirm_delete_transaction":
+            if not transaction_id:
+                reply_text(reply_token, "ไม่พบรายการที่ต้องการลบ")
+                return
+            
+            deleted = supabase_repo.delete_line_transaction(
+                line_user_id=line_user_id,
+                transaction_id=transaction_id
+            )
+
+            if not deleted:
+                reply_text(reply_token, "ไม่พบรายการนี้ หรือรายการนี้ถูกลบไปแล้ว")
+                return
+            
+            amount = float(deleted["amount"])
+
+            reply_text(
+                reply_token,
+                "ลบรายการสำเร็จ 🗑️\n\n"
+                f"วันที่: {deleted['transaction_date']}\n"
+                f"ประเภท: {deleted['type']}\n"
+                f"หมวดหมู่: {deleted['category']}\n"
+                f"จำนวนเงิน: {amount:,.2f} บาท\n"
+                f"โน้ต: {deleted.get('note') or '-'}",
+            )
+            return
+
+        
         reply_text(reply_token, "ไม่พบคำสั่งที่เลือก")
+
 
     except Exception as e:
         print("Postback handling error:", repr(e))
         reply_text(
             reply_token,
-            "ขออภัย ยืนยันรายการไม่สำเร็จครับ 🙏\n"
+            "ขออภัย ยืนยันรายการไม่สำเร็จ 🙏\n"
             f"รายละเอียด: {str(e)}"
         )

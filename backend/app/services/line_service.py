@@ -264,3 +264,202 @@ def reply_summary_card(
                 ],
             )
         )
+
+def reply_transaction_list_card(
+        reply_token: str,
+        transactions: list[dict],
+        title: str = "รายการล่าสุด",
+) -> None:
+    
+    if not transactions:
+        reply_text(reply_token, "ยังไม่มีรายการที่บันทึกไว้")
+        return
+
+    bubbles = []
+
+    for item in transactions[:10]:
+        amount = float(item["amount"])
+        transaction_type = item["type"]
+
+        if transaction_type == "income":
+            type_label = "รายรับ"
+            color = "#16A34A"
+        else:
+            type_label = "รายจ่าย"
+            color = "#DC2626"
+
+        delete_data = (
+            f"action=request_delete_transaction"
+            f"&transaction_id={item['id']}"
+        )
+
+        bubble = {
+            "type": "bubble",
+            "size": "kilo",
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": type_label,
+                        "weight": "bold",
+                        "size": "sm",
+                        "color": color,
+                    },
+                    {
+                        "type": "text",
+                        "text": f"{amount:,.2f} บาท",
+                        "weight": "bold",
+                        "size": "xl",
+                        "color": "#111827",
+                    },
+                    {
+                        "type": "separator",
+                        "margin": "md",
+                    },
+                    row_item("วันที่", item["transaction_date"]),
+                    row_item("หมวดหมู่", item["category"]),
+                    row_item("โน้ต", item.get("note") or "-"),
+                ],
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#DC2626",
+                        "action": {
+                            "type": "postback",
+                            "label": "ลบรายการนี้",
+                            "data": delete_data,
+                            "displayText": "ลบรายการนี้",
+                        },
+                    }
+                ],
+            },
+        }
+
+        bubbles.append(bubble)
+
+    flex_content = {
+        "type": "carousel",
+        "contents": bubbles,
+    }
+
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        line_bot_api.reply_message(
+            reply_message_request=ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[
+                    FlexMessage(
+                        alt_text=title,
+                        contents=FlexContainer.from_dict(flex_content),
+                    )
+                ],
+            )
+        )
+
+def reply_delete_confirm_card(
+        reply_token: str,
+        transaction: dict,
+) -> None:
+    amount = float(transaction["amount"])
+
+    delete_data = (
+        f"action=confirm_delete_transaction"
+        f"&transaction_id={transaction['id']}"
+    )
+    cancel_data = "action=cancel_delete_transaction"
+
+    transaction_type = transaction["type"]
+    color = "#16A34A" if transaction_type == "income" else "#DC2626"
+
+    flex_content = {
+        "type": "bubble",
+        "size": "mega",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "Coinly Delete Confirmation",
+                    "weight": "bold",
+                    "size": "sm",
+                    "color": "#64748B",
+                },
+                {
+                    "type": "text",
+                    "text": "ยืนยันการลบรายการนี้?",
+                    "weight": "bold",
+                    "size": "xl",
+                    "color": "#DC2626",
+                    "wrap": True,
+                },
+                {
+                    "type": "separator",
+                    "margin": "md",
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "sm",
+                    "margin": "md",
+                    "contents": [
+                        row_item("วันที่", transaction["transaction_date"]),
+                        row_item("ประเภท", transaction["type"]),
+                        row_item("หมวดหมู่", transaction["category"]),
+                        row_item("จำนวนเงิน", f"{amount:,.2f} บาท"),
+                        row_item("โน้ต", transaction.get("note") or "-"),
+                    ],
+                },
+            ],
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "button",
+                    "style": "secondary",
+                    "action": {
+                        "type": "postback",
+                        "label": "ยกเลิก",
+                        "data": cancel_data,
+                        "displayText": "ยกเลิกการลบ",
+                    },
+                },
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "color": "#DC2626",
+                    "action": {
+                        "type": "postback",
+                        "label": "ยืนยันลบ",
+                        "data": delete_data,
+                        "displayText": "ยืนยันลบรายการ",
+                    },
+                },
+            ],
+        },
+    }
+
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        line_bot_api.reply_message(
+            reply_message_request=ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[
+                    FlexMessage(
+                        alt_text="ยืนยันการลบรายการ",
+                        contents=FlexContainer.from_dict(flex_content),
+                    )
+                ],
+            )
+        )

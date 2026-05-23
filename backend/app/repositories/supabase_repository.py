@@ -38,6 +38,7 @@ class SupabaseRepository:
             line_user_id: str, 
             start_date: date | None = None,
             end_date: date | None = None,
+            limit: int | None = None,
     ) -> list[dict]:
         params = [
             ("select", "id,transaction_date,type,category,amount,note,raw_text,created_at"),
@@ -50,6 +51,9 @@ class SupabaseRepository:
 
         if end_date:
             params.append(("transaction_date", f"lte.{end_date.isoformat()}"))
+
+        if limit:
+            params.append(("limit", str(limit)))
 
         response = httpx.get(
             f"{self.base_url}/rest/v1/line_transactions",
@@ -65,6 +69,63 @@ class SupabaseRepository:
         
 
         return response.json()
+    
+    def get_line_transaction_by_id(
+            self,
+            line_user_id: str,
+            transaction_id: str,
+    ) -> dict | None:
+        
+        params = [
+            ("select", "id,transaction_date,type,category,amount,note,raw_text,created_at"),
+            ("id", f"eq.{transaction_id}"),
+            ("line_user_id", f"eq.{line_user_id}"),
+            ("limit", "1"),
+        ]
+
+        response = httpx.get(
+            f"{self.base_url}/rest/v1/line_transactions",
+            headers=self.__headers(),
+            params=params,
+            timeout=30
+        )
+
+        if response.status_code >= 400:
+            raise Exception(
+                f"Supabase error: {response.status_code} {response.text}"
+            )
+        
+        data = response.json()
+        return data[0] if data else None
+    
+    def delete_line_transaction(
+            self,
+            line_user_id: str,
+            transaction_id: str,
+    ) -> dict | None:
+        
+        params = [
+            ("id", f"eq.{transaction_id}"),
+            ("line_user_id", f"eq. {line_user_id}")
+        ]
+
+        response = httpx.delete(
+            f"{self.base_url}/rest/v1/line_transactions",
+            headers=self.__headers(),
+            params=params,
+            timeout=30
+        )
+
+        if response.status_code >= 400:
+            raise Exception(
+                f"Supabase error: {response.status_code} {response.text}"
+            )
+        
+        if not response.text:
+            return None
+        
+        data = response.json()
+        return data[0] if data else None
     
     def get_summary(
             self,
