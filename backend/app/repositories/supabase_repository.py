@@ -85,7 +85,7 @@ class SupabaseRepository:
 
         response = httpx.get(
             f"{self.base_url}/rest/v1/line_transactions",
-            headers=self.__headers(),
+            headers=self._headers(),
             params=params,
             timeout=30
         )
