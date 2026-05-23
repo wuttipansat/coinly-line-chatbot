@@ -144,28 +144,32 @@ def handle_postback(event):
 
     try:
         parsed_data = parse_qs(data)
+
         action = parsed_data.get("action", [""])[0]
         pending_id = parsed_data.get("pending_id", [""])[0]
         transaction_id = parsed_data.get("transaction_id", [""])[0]
 
-        if not pending_id:
-            reply_text(reply_token, "ไม่พบรายการที่ต้องการยืนยัน")
-            return
-
         if action == "cancel_transaction":
+            if not pending_id:
+                reply_text(reply_token, "ไม่พบรายการที่ต้องการยกเลิก")
+                return
+
             delete_pending_transaction(pending_id)
             reply_text(reply_token, "ยกเลิกการบันทึกรายการ")
             return
-        
+
         if action == "confirm_transaction":
+            if not pending_id:
+                reply_text(reply_token, "ไม่พบรายการที่ต้องการยืนยัน")
+                return
+
             transaction_dict = get_pending_transaction(pending_id)
 
             if not transaction_dict:
                 reply_text(
                     reply_token,
-                    "รายการนี้หมดอายุหรือถูกยืนยันไปแล้ว กรุณาส่งรายการใหม่อีกครั้ง"
+                    "รายการนี้หมดอายุหรือถูกยืนยันไปแล้ว กรุณาส่งรายการใหม่อีกครั้ง",
                 )
-
                 return
 
             transaction = LineTransactionCreate(**transaction_dict)
@@ -182,50 +186,54 @@ def handle_postback(event):
                 f"ประเภท: {saved['type']}\n"
                 f"หมวดหมู่: {saved['category']}\n"
                 f"จำนวนเงิน: {amount:,.2f} บาท\n"
-                f"โน้ต: {saved.get('note') or '-'}"
+                f"โน้ต: {saved.get('note') or '-'}",
             )
-
             return
-        
+
         if action == "request_delete_transaction":
             if not transaction_id:
                 reply_text(reply_token, "ไม่พบรายการที่ต้องการลบ")
                 return
-            
+
             transaction = supabase_repo.get_line_transaction_by_id(
                 line_user_id=line_user_id,
-                transaction_id=transaction_id
+                transaction_id=transaction_id,
             )
 
             if not transaction:
-                reply_text(reply_token, "ไม่พบรายการนี้ หรือรายการนี้ถูกลบไปแล้ว")
+                reply_text(
+                    reply_token,
+                    "ไม่พบรายการนี้ หรือรายการนี้ถูกลบไปแล้ว",
+                )
                 return
-            
+
             reply_delete_confirm_card(
                 reply_token=reply_token,
                 transaction=transaction,
             )
             return
-        
 
         if action == "cancel_delete_transaction":
             reply_text(reply_token, "ยกเลิกการลบรายการ")
             return
-        
+
         if action == "confirm_delete_transaction":
             if not transaction_id:
                 reply_text(reply_token, "ไม่พบรายการที่ต้องการลบ")
                 return
-            
+
             deleted = supabase_repo.delete_line_transaction(
                 line_user_id=line_user_id,
-                transaction_id=transaction_id
+                transaction_id=transaction_id,
             )
 
             if not deleted:
-                reply_text(reply_token, "ไม่พบรายการนี้ หรือรายการนี้ถูกลบไปแล้ว")
+                reply_text(
+                    reply_token,
+                    "ไม่พบรายการนี้ หรือรายการนี้ถูกลบไปแล้ว",
+                )
                 return
-            
+
             amount = float(deleted["amount"])
 
             reply_text(
@@ -239,14 +247,12 @@ def handle_postback(event):
             )
             return
 
-        
         reply_text(reply_token, "ไม่พบคำสั่งที่เลือก")
-
 
     except Exception as e:
         print("Postback handling error:", repr(e))
         reply_text(
             reply_token,
-            "ขออภัย ยืนยันรายการไม่สำเร็จ 🙏\n"
-            f"รายละเอียด: {str(e)}"
+            "ขออภัย ดำเนินการไม่สำเร็จครับ 🙏\n"
+            f"รายละเอียด: {str(e)}",
         )
