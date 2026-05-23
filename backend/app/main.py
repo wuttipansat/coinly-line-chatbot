@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 
 from app.api.line_webhook import router as line_router
 
@@ -18,6 +18,10 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.head("/health")
+def health_check_head():
+    return Response(status_code=200)
 
 app.include_router(
     line_router,
