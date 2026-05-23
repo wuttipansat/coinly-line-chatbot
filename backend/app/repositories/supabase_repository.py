@@ -113,7 +113,7 @@ class SupabaseRepository:
     
         params = [
             ("id", f"eq.{transaction_id}"),
-            ("line_user_id", f"eq. {line_user_id}")
+            ("line_user_id", f"eq.{line_user_id}")
         ]
 
         response = httpx.delete(
