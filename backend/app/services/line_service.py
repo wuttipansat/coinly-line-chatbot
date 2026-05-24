@@ -31,6 +31,106 @@ def reply_text(reply_token: str, text: str) -> None:
             )
         )
 
+def reply_transaction_card(
+        reply_token: str,
+        transaction: dict,
+) -> None:
+    amount = float(transaction["amount"])
+    transaction_type = transaction["type"]
+
+    if transaction_type == "income":
+        type_label = "รายรับ"
+        title = "บันทึกรายรับสำเร็จ"
+        color = "#16A34A"
+    
+    else:
+        type_label = "รายจ่าย"
+        title = "บันทึกรายจ่ายสำเร็จ"
+        color = "#DC2626"
+
+    flex_content = {
+        "type": "bubble",
+        "size": "mega",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "Coinly Transaction",
+                    "weight": "bold",
+                    "size": "sm",
+                    "color": "#64748B",
+                },
+                {
+                    "type": "text",
+                    "text": title,
+                    "weight": "bold",
+                    "size": "xl",
+                    "color": "#111827",
+                    "wrap": True,
+                },
+                {
+                    "type": "text",
+                    "text": f"{amount:,.2f} บาท",
+                    "weight": "bold",
+                    "size": "xxl",
+                    "color": color,
+                    "wrap": True,
+                },
+                {
+                    "type": "separator",
+                    "margin": "md",
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "sm",
+                    "margin": "md",
+                    "contents": [
+                        row_item("วันที่", transaction["transaction_date"]),
+                        row_item("ประเภท", type_label),
+                        row_item("หมวดหมู่", transaction["category"]),
+                        row_item("โน้ต", transaction.get("note") or "-"),
+                    ],
+                },
+            ],
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "sm",
+            "contents": [
+                {
+                    "type": "button",
+                    "style": "secondary",
+                    "action": {
+                        "type": "message",
+                        "label": "ดูรายการล่าสุด",
+                        "text": "รายการ",
+                    },
+                }
+            ],
+        },
+    }
+
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        line_bot_api.reply_message(
+            reply_message_request=ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[
+                    FlexMessage(
+                        alt_text="บันทึกรายการสำเร็จ",
+                        contents=FlexContainer.from_dict(flex_content),
+                    )
+                ],
+            )
+        )
+
+
+
 def reply_confirmation_card(
         reply_token: str,
         transaction: dict,
@@ -289,7 +389,7 @@ def reply_transaction_list_card(
             color = "#DC2626"
 
         delete_data = (
-            f"action=request_delete_transaction"
+            f"action=delete_transaction"
             f"&transaction_id={item['id']}"
         )
 
@@ -364,6 +464,102 @@ def reply_transaction_list_card(
             )
         )
 
+def reply_deleted_transaction_card(
+    reply_token: str,
+    transaction: dict,
+) -> None:
+    amount = float(transaction["amount"])
+
+    transaction_type = transaction["type"]
+
+    if transaction_type == "income":
+        type_label = "รายรับ"
+        type_color = "#16A34A"
+    else:
+        type_label = "รายจ่าย"
+        type_color = "#DC2626"
+
+    flex_content = {
+        "type": "bubble",
+        "size": "mega",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "Coinly Transaction",
+                    "weight": "bold",
+                    "size": "sm",
+                    "color": "#64748B",
+                },
+                {
+                    "type": "text",
+                    "text": "ลบรายการสำเร็จ 🗑️",
+                    "weight": "bold",
+                    "size": "xl",
+                    "color": "#DC2626",
+                    "wrap": True,
+                },
+                {
+                    "type": "text",
+                    "text": f"{amount:,.2f} บาท",
+                    "weight": "bold",
+                    "size": "xxl",
+                    "color": type_color,
+                    "wrap": True,
+                },
+                {
+                    "type": "separator",
+                    "margin": "md",
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "sm",
+                    "margin": "md",
+                    "contents": [
+                        row_item("วันที่", transaction["transaction_date"]),
+                        row_item("ประเภท", type_label),
+                        row_item("หมวดหมู่", transaction["category"]),
+                        row_item("โน้ต", transaction.get("note") or "-"),
+                    ],
+                },
+            ],
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "sm",
+            "contents": [
+                {
+                    "type": "button",
+                    "style": "secondary",
+                    "action": {
+                        "type": "message",
+                        "label": "ดูรายการล่าสุด",
+                        "text": "รายการ",
+                    },
+                }
+            ],
+        },
+    }
+
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        line_bot_api.reply_message(
+            reply_message_request=ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[
+                    FlexMessage(
+                        alt_text="ลบรายการสำเร็จ",
+                        contents=FlexContainer.from_dict(flex_content),
+                    )
+                ],
+            )
+        )
+
 def reply_delete_confirm_card(
         reply_token: str,
         transaction: dict,
@@ -399,7 +595,7 @@ def reply_delete_confirm_card(
                     "text": "ยืนยันการลบรายการนี้?",
                     "weight": "bold",
                     "size": "xl",
-                    "color": "#DC2626",
+                    "color": color,
                     "wrap": True,
                 },
                 {
