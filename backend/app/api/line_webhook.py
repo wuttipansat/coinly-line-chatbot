@@ -65,7 +65,10 @@ def handle_text_message(event):
         if lower_text in ["ประกาศ"]:
             announce = load_announce()
 
-            reply_text(reply_token=reply_token, text=announce)
+            if announce:
+                reply_text(reply_token=reply_token, text=announce)
+            else:
+                reply_text(reply_token=reply_token, text="ยังไม่มีประกาศในตอนนี้")
 
             return
             
