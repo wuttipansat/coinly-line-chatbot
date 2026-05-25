@@ -66,7 +66,7 @@ def handle_text_message(event):
             announce = load_announce()
 
             if announce:
-                reply_text(reply_token=reply_token, text=announce)
+                reply_text(reply_token=reply_token, text=str(announce))
             else:
                 reply_text(reply_token=reply_token, text="ยังไม่มีประกาศในตอนนี้")
 

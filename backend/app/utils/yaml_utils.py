@@ -7,7 +7,7 @@ ANNOUCE_PATH = BASE_DIR / "config" / "announce.yaml"
 import yaml
 
 
-def load_announce(file_path="announce.yaml") -> str | None:
+def load_announce(file_path=ANNOUCE_PATH) -> str | None:
     try:
         with open(file_path, "r", encoding="utf-8") as file:
             data = yaml.safe_load(file) or {}
@@ -28,4 +28,3 @@ def load_announce(file_path="announce.yaml") -> str | None:
     except Exception as e:
         print(f"Load announce error: {e}")
         return None
-
