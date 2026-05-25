@@ -2,7 +2,7 @@ import yaml
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-ANNOUCE_PATH = BASE_DIR / "config" / "annouce.yaml"
+ANNOUCE_PATH = BASE_DIR / "config" / "announce.yaml"
 
 def load_announce(file_path: str | Path = ANNOUCE_PATH) -> str:
     with open(file_path, "r", encoding="utf-8") as file:
