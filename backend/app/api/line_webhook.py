@@ -12,6 +12,7 @@ from app.services.ai_parser_service import parse_transaction_text
 from app.services.line_service import reply_text, reply_transaction_card, reply_summary_card, reply_transaction_list_card, reply_deleted_transaction_card
 from app.repositories.supabase_repository import SupabaseRepository
 from app.utils.date_utils import get_today_range, get_current_month_range
+from app.utils.yaml_utils import load_announce
 
 
 router = APIRouter()
@@ -60,6 +61,12 @@ def handle_text_message(event):
     try:
 
         lower_text = user_text.lower()
+
+        if lower_text in ["ประกาศ"]:
+            announce = load_announce()
+
+            reply_text(reply_token=reply_token, text=announce)
+            
 
         if lower_text in ["วันนี้", "สรุปวันนี้", "today"]:
             start_date, end_date = get_today_range()
