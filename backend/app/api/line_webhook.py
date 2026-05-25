@@ -64,6 +64,7 @@ def handle_text_message(event):
 
         if lower_text in ["ประกาศ"]:
             announce = load_announce()
+            print(announce)
 
             if announce:
                 reply_text(reply_token=reply_token, text=str(announce))
