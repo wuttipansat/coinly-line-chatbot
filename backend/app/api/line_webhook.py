@@ -66,6 +66,8 @@ def handle_text_message(event):
             announce = load_announce()
 
             reply_text(reply_token=reply_token, text=announce)
+
+            return
             
 
         if lower_text in ["วันนี้", "สรุปวันนี้", "today"]:
