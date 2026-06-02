@@ -1,6 +1,9 @@
 # Coinly LINE Chatbot
 Coinly LINE Chatbot is an AI-powered personal finance tracker for LINE. Users can send income or expense messages in Thai or English, and Coinly will automatically extract transaction details, save the data to Supabase, and provide simple financial summaries.
 
+![Image alt](https://github.com/wuttipansat/coinly-line-chatbot/blob/e8e541ddb9aca769ab8c848b96827a7cd29f7ad6/snapshot1.jpg).
+![Image alt](https://github.com/wuttipansat/coinly-line-chatbot/blob/e8e541ddb9aca769ab8c848b96827a7cd29f7ad6/snapshot2.jpg).
+
 ## Features
 - Line Messaging API webhook integration
 - AI transaction parsing from Thai or English text
