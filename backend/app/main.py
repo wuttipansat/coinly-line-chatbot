@@ -28,6 +28,12 @@ app.include_router(
     tags=["LINE Webhook"],
 )
 
+app.include_router(
+    liff_router,
+    prefix="/api/v1/liff",
+    tags=["LINE LIFF"]
+)
+
 app.mount(
     "/liff",
     StaticFiles(
@@ -44,9 +50,3 @@ def health_check():
 @app.head("/health")
 def health_check_head():
     return Response(status_code=200)
-
-app.include_router(
-    line_router,
-    prefix="/api/v1/line",
-    tags=["Line Webhook"]
-)
