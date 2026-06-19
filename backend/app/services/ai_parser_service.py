@@ -18,41 +18,38 @@ client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=settings.OPENAI
 
 def parse_transaction_text(user_text: str) -> Transaction:
     bangkok_tz = timezone(timedelta(hours=7))
-    today = datetime.now(bangkok_tz).date().isoformat()
+    today = datetime.now(bangkok_tz).date()
+    today_iso = today.isoformat()
 
     system_prompt = f"""
 You are a transaction parser.
 
-Extract exactly one transaction data from Thai or English text.
+Extract exactly one transaction from Thai or English text.
 
-Today is {today} in Asia/Bangkok timezone.
+Reference date: {today_iso}
+Timezone: Asia/Bangkok
 
-Allowed transaction types with descriptions:
+Transaction types:
 {transaction_types}
 
-Allowed categories with descriptions:
+Categories:
 {categories}
 
-Return ONLY valid JSON. No markdown. No explanation.
+Return only one valid JSON object:
 
-Required JSON schema:
 {{
   "transaction_date": "YYYY-MM-DD",
   "type": "income or expense",
-  "category": "allowed category under selected type",
+  "category": "allowed category under the selected type",
   "amount": number,
   "note": "short Thai note without amount"
 }}
 
-Rules:
-- If no date is mentioned, use today's date: {today}.
-- If user says "เมื่อวาน" or "yesterday", use yesterday's date.
-- Use "expense" for spending, buying, eating, drinking, traveling, bills, or money paid out.
-- Use "income" for salary, freelance income, investment return, gift, or money received.
-- category must be one allowed category under the selected type.
-- If category is unclear, use "other".
-- amount must be numeric only.
-- note must be Thai, concise, and must not include the amount.
+Requirements:
+- Resolve explicit and relative date expressions using the reference date.
+- Use the reference date if no date is mentioned.
+- Use only the provided transaction types and categories.
+- Return a numeric amount and a concise Thai note.
 """
     
     response = client.chat.completions.create(
@@ -74,7 +71,22 @@ Rules:
     json_text = clean_json_content(content)
     data = json.loads(json_text)
 
+    validate_transaction_date(data)
+
     return Transaction(**data)
+
+def validate_transaction_date(data: dict) -> None:
+    transaction_date = data.get("transaction_date")
+
+    if not transaction_date:
+        raise ValueError("Missing transaction_date")
+
+    try:
+        datetime.strptime(transaction_date, "%Y-%m-%d")
+    except ValueError as exc:
+        raise ValueError(
+            f"Invalid transaction_date: {transaction_date}"
+        ) from exc
 
 def clean_json_content(content: str) -> str:
     content = content.strip()
