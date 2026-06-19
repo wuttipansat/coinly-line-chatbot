@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0,
+                 viewport-fit=cover"
+    >
+
+    <title>รายการของฉัน</title>
+
+    <link
+        rel="stylesheet"
+        href="./styles.css"
+    >
+</head>
+
+<body>
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loading-message">กำลังเข้าสู่ระบบ...</p>
+    </div>
+
+    <div id="app" class="app hidden">
+        <header class="header">
+            <div>
+                <p class="brand">COINLY</p>
+                <h1>รายการของฉัน</h1>
+            </div>
+
+            <div class="profile">
+                <div class="profile-text">
+                    <span>สวัสดี</span>
+                    <strong id="profile-name">ผู้ใช้</strong>
+                </div>
+
+                <img
+                    id="profile-image"
+                    class="profile-image"
+                    alt="รูปโปรไฟล์"
+                >
+            </div>
+        </header>
+
+        <section class="summary-section">
+            <div class="summary-card balance-card">
+                <span class="summary-label">ยอดคงเหลือ</span>
+                <strong id="balance-value">
+                    ฿0.00
+                </strong>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <span class="summary-label">
+                        รายรับทั้งหมด
+                    </span>
+
+                    <strong
+                        id="income-value"
+                        class="income-text"
+                    >
+                        ฿0.00
+                    </strong>
+                </div>
+
+                <div class="summary-card">
+                    <span class="summary-label">
+                        รายจ่ายทั้งหมด
+                    </span>
+
+                    <strong
+                        id="expense-value"
+                        class="expense-text"
+                    >
+                        ฿0.00
+                    </strong>
+                </div>
+            </div>
+
+            <p id="transaction-count" class="transaction-count">
+                0 รายการ
+            </p>
+        </section>
+
+        <section class="transaction-section">
+            <div class="section-heading">
+                <h2>ประวัติรายการ</h2>
+            </div>
+
+            <div class="filter-row">
+                <button
+                    class="filter-button active"
+                    data-type=""
+                >
+                    ทั้งหมด
+                </button>
+
+                <button
+                    class="filter-button"
+                    data-type="income"
+                >
+                    รายรับ
+                </button>
+
+                <button
+                    class="filter-button"
+                    data-type="expense"
+                >
+                    รายจ่าย
+                </button>
+            </div>
+
+            <div id="transaction-list" class="transaction-list">
+            </div>
+
+            <div
+                id="empty-state"
+                class="empty-state hidden"
+            >
+                <div class="empty-icon">🐿️</div>
+                <h3>ยังไม่มีรายการ</h3>
+                <p>ส่งข้อความหา Coinly เพื่อบันทึกรายการแรก</p>
+            </div>
+
+            <button
+                id="load-more-button"
+                class="load-more-button hidden"
+            >
+                ดูเพิ่มเติม
+            </button>
+        </section>
+
+        <div id="error-box" class="error-box hidden">
+        </div>
+    </div>
+
+    <script
+        charset="utf-8"
+        src="https://static.line-scdn.net/liff/edge/2/sdk.js"
+    ></script>
+
+    <script src="./app.js" defer></script>
+</body>
+</html>

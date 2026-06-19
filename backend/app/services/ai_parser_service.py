@@ -46,7 +46,9 @@ Return only one valid JSON object:
 }}
 
 Requirements:
+- Transactions must not have a future date.
 - Resolve explicit and relative date expressions using the reference date.
+- If only a weekday is mentioned, use its most recent occurrence on or before the reference.
 - Use the reference date if no date is mentioned.
 - Use only the provided transaction types and categories.
 - Return a numeric amount and a concise Thai note.

@@ -162,3 +162,50 @@ class SupabaseRepository:
             "balance": total_income - total_expense,
             "transaction_count": len(transactions)
         }
+    
+    def get_line_transactions_page(
+            self,
+            line_user_id: str,
+            limit: int = 20,
+            offset: int = 0,
+            transaction_type: str | None = None,
+
+    ) -> tuple[list[dict], bool]:
+        
+        fetch_limit = limit + 1
+
+        params = [
+            (
+                "select",
+                "id,transaction_date,type,category,"
+                "amount,note,raw_text,created_at",
+            ),
+            ("line_user_id", f"eq.{line_user_id}"),
+            ("order", "transaction_date.desc,created_at.desc")
+            ("limit", str(fetch_limit)),
+            ("offset", str(offset)),
+        ]
+
+        if transaction_type:
+            params.append(("type", f"eq.{transaction_type}"))
+
+        response = httpx.get(
+            f"{self.base_url}/rest/v1/line_transactions",
+            headers=self._headers(),
+            params=params,
+            timeout=30
+        )
+
+        if response.status_code >= 400:
+            raise Exception(
+                f"Supabase error:"
+                f"{response.status_code} {response.text}"
+            )
+        
+        data = response.json()
+        
+        has_more = len(data) > limit
+        items = data[:limit]
+        return items, has_more
+    
+    

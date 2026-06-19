@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     LINE_CHANNEL_SECRET: str
     LINE_CHANNEL_ACCESS_TOKEN: str
 
+    LINE_LOGIN_CHANNEL_ID: str
+    LIFF_ID: str
+
     OPENAI_API_KEY: str
 
     SUPABASE_URL: str
