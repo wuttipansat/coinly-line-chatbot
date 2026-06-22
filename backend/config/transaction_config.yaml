@@ -58,7 +58,7 @@ categories:
   expense:
     food:
       label: อาหาร
-      description: อาหาร เครื่องดื่ม ของกิน กาแฟ ชานม ร้านอาหาร ของสด ของใช้ในครัว
+      description: อาหาร เครื่องดื่ม น้ำดื่ม ของกิน กาแฟ ชานม ร้านอาหาร ของสด
       icon: "🍜"
 
     transport:
@@ -78,12 +78,12 @@ categories:
 
     utilities:
       label: ค่าสาธารณูปโภค
-      description: ค่าน้ำ ค่าไฟ อินเทอร์เน็ต โทรศัพท์ บิลต่าง ๆ
+      description: ค่าน้ำประปา ค่าไฟ อินเทอร์เน็ต โทรศัพท์ บิลต่าง ๆ
       icon: "💡"
 
     health:
       label: สุขภาพ
-      description: ค่าหมอ โรงพยาบาล ยา สุขภาพ ฟิตเนส ประกันสุขภาพ เล่นกีฬา
+      description: ค่าหมอ โรงพยาบาล ยา ตรวจสุขภาพ กายภาพบำบัด ประกันสุขภาพ ฟิตเนส
       icon: "🏥"
 
     education:
@@ -93,7 +93,7 @@ categories:
 
     entertainment:
       label: ความบันเทิง
-      description: ดูหนัง เกม เพลง งานอดิเรก กิจกรรม ความบันเทิง
+      description: ดูหนัง เกม เพลง คอนเสิร์ต สวนสนุก งานอดิเรก และกิจกรรมพักผ่อนที่ไม่ใช่กีฬา
       icon: "🎬"
 
     subscription:
@@ -104,7 +104,12 @@ categories:
     travel:
       label: ท่องเที่ยว
       description: โรงแรม ตั๋วเครื่องบิน ทริป ท่องเที่ยว ที่พัก
-      icon: "✈️"
+      icon: "🚗"
+
+    sport:
+      label: กีฬา
+      description: กีฬา การออกกำลังกาย ค่าสนาม และอุปกรณ์กีฬา
+      icon: "⚽"
 
     other:
       label: รายจ่ายอื่น ๆ

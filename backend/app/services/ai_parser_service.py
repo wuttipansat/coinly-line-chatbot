@@ -51,7 +51,7 @@ Requirements:
 - If only a weekday is mentioned, use its most recent occurrence on or before the reference.
 - Use the reference date if no date is mentioned.
 - Use only the provided transaction types and categories.
-- Return a numeric amount and a concise Thai note.
+- Return a short, concise note in Thai.
 """
     
     response = client.chat.completions.create(
