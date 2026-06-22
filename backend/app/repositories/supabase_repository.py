@@ -147,8 +147,8 @@ class SupabaseRepository:
 
 
         for item in transactions:
-            amount = float(item["amount"])
-            transaction_type = item["type"]
+            amount = float(item.get("amount") or 0)
+            transaction_type = item.get("type")
 
             if transaction_type == "income":
                 total_income += amount
@@ -181,7 +181,7 @@ class SupabaseRepository:
                 "amount,note,raw_text,created_at",
             ),
             ("line_user_id", f"eq.{line_user_id}"),
-            ("order", "transaction_date.desc,created_at.desc")
+            ("order", "transaction_date.desc,created_at.desc"),
             ("limit", str(fetch_limit)),
             ("offset", str(offset)),
         ]
@@ -198,7 +198,7 @@ class SupabaseRepository:
 
         if response.status_code >= 400:
             raise Exception(
-                f"Supabase error:"
+                f"Supabase error: "
                 f"{response.status_code} {response.text}"
             )
         
@@ -207,5 +207,4 @@ class SupabaseRepository:
         has_more = len(data) > limit
         items = data[:limit]
         return items, has_more
-    
     
