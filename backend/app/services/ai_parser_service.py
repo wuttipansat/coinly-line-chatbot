@@ -52,7 +52,7 @@ Requirements:
 - Use the reference date if no date is mentioned.
 - Use only the provided transaction types and categories.
 - If category is unclear, use "other".
-- amount must be numeric only.
+- amount must be numeric and greater than 0.
 - Return a short, concise note in Thai.
 """
     
