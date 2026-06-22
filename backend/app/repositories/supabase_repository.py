@@ -2,7 +2,7 @@ import httpx
 from datetime import date
 
 from app.core.config import settings
-from app.schemas.transaction_schema import LineTransactionCreate
+from app.schemas.transaction_schema import LineTransactionCreate, TransactionUpdate
 
 
 class SupabaseRepository:
@@ -96,6 +96,48 @@ class SupabaseRepository:
             )
         
         data = response.json()
+        return data[0] if data else None
+    
+    def update_line_transaction(
+            self,
+            line_user_id: str,
+            transaction_id: str,
+            transaction: TransactionUpdate,
+    ) -> dict | None:
+        
+        existing_transaction = self.get_line_transaction_by_id(
+            line_user_id=line_user_id,
+            transaction_id=transaction_id
+        )
+
+        if not existing_transaction:
+            return None
+        
+        payload = transaction.model_dump(
+            mode="json",
+        )
+
+        params = [
+            ("id", f"eq.{transaction_id}"),
+            ("line_user_id", f"eq.{line_user_id}")
+        ]
+
+        response = httpx.patch(
+            f"{self.base_url}/rest/v1/line_transactions",
+            headers=self._headers(),
+            params=params,
+            json=payload,
+            timeout=30
+        )
+
+        if response.status_code >= 400:
+            raise Exception(
+                "Supabase error: "
+                f"{response.status_code} {response.text}"
+            )
+        
+        data = response.json()
+
         return data[0] if data else None
     
     def delete_line_transaction(

@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="./styles.css"
+        href="./styles.css?v=5"
     >
 </head>
 
@@ -132,7 +132,118 @@
                 ดูเพิ่มเติม
             </button>
         </section>
+        <div
+            id="edit-modal"
+            class="modal hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-modal-title"
+        >
+            <div
+                class="modal-backdrop"
+                data-close-modal
+            ></div>
 
+            <div class="modal-panel">
+                <div class="modal-header">
+                    <h2 id="edit-modal-title">
+                        แก้ไขรายการ
+                    </h2>
+
+                    <button
+                        type="button"
+                        class="modal-close-button"
+                        data-close-modal
+                        aria-label="ปิด"
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <form id="edit-transaction-form">
+                    <input
+                        type="hidden"
+                        id="edit-transaction-id"
+                    >
+
+                    <label class="form-label">
+                        ประเภท
+                        <select
+                            id="edit-type"
+                            class="form-control"
+                            required
+                        >
+                            <option value="income">
+                                รายรับ
+                            </option>
+
+                            <option value="expense">
+                                รายจ่าย
+                            </option>
+                        </select>
+                    </label>
+
+                    <label class="form-label">
+                        หมวดหมู่
+                        <select
+                            id="edit-category"
+                            class="form-control"
+                            required
+                        ></select>
+                    </label>
+
+                    <label class="form-label">
+                        จำนวนเงิน
+                        <input
+                            id="edit-amount"
+                            class="form-control"
+                            type="number"
+                            min="0.01"
+                            step="0.01"
+                            required
+                        >
+                    </label>
+
+                    <label class="form-label">
+                        วันที่
+                        <input
+                            id="edit-date"
+                            class="form-control"
+                            type="date"
+                            required
+                        >
+                    </label>
+
+                    <label class="form-label">
+                        หมายเหตุ
+                        <textarea
+                            id="edit-note"
+                            class="form-control"
+                            rows="3"
+                            maxlength="300"
+                        ></textarea>
+                    </label>
+
+                    <div class="modal-actions">
+                        <button
+                            type="button"
+                            class="secondary-button"
+                            data-close-modal
+                        >
+                            ยกเลิก
+                        </button>
+
+                        <button
+                            id="save-edit-button"
+                            type="submit"
+                            class="primary-button"
+                        >
+                            บันทึก
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <div id="error-box" class="error-box hidden">
         </div>
     </div>
@@ -142,6 +253,6 @@
         src="https://static.line-scdn.net/liff/edge/2/sdk.js"
     ></script>
 
-    <script src="./app.js" defer></script>
+    <script src="./app.js?v=5" defer></script>
 </body>
 </html>

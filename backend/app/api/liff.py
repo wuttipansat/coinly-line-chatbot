@@ -6,6 +6,7 @@ from app.core.config import settings
 from app.repositories.supabase_repository import SupabaseRepository
 from app.services.line_liff_auth_service import verify_line_id_token
 from app.core.transaction_config import get_category_ui
+from app.schemas.transaction_schema import TransactionUpdate
 
 
 router = APIRouter()
@@ -90,3 +91,78 @@ async def get_all_transactions(
         "has_more": has_more,
         "next_offset": next_offset
     }
+
+@router.put("/transactions/{transaction_id}")
+async def update_transaction(
+    transaction_id: str,
+    transaction: TransactionUpdate,
+    authorization: Annotated[
+        str | None,
+        Header(),
+    ] = None
+):
+    id_token = extract_bearer_token(
+        authorization
+    )
+
+    token_payload = await verify_line_id_token(
+        id_token
+    )
+
+    line_user_id = token_payload["sub"]
+
+    updated = (
+        supabase_repo.update_line_transaction(
+            line_user_id=line_user_id,
+            transaction_id=transaction_id,
+            transaction=transaction
+        )
+    )
+
+    if not updated:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ไม่พบรายการที่ต้องการแก้ไข"
+        )
+    
+    return {
+        "message": "แก้ไขรายการสำเร็จ",
+        "item": updated,
+    }
+
+@router.delete("/transactions/{transaction_id}")
+async def delete_transaction(
+    transaction_id: str,
+    authorization: Annotated[
+        str | None,
+        Header(),
+    ] = None,
+):
+    id_token = extract_bearer_token(
+        authorization
+    )
+
+    token_payload = await verify_line_id_token(
+        id_token
+    )
+
+    line_user_id = token_payload["sub"]
+
+    deleted = (
+        supabase_repo.delete_line_transaction(
+            line_user_id=line_user_id,
+            transaction_id=transaction_id
+        )
+    )
+
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ไม่พบรายการที่ต้องการลบ",
+        )
+    
+    return {
+        "message": "ลบรายการสำเร็จ",
+        "item": deleted,
+    }
+

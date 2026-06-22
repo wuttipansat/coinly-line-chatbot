@@ -41,6 +41,9 @@ class Transaction(BaseModel):
             raise ValueError(f"Invalid category '{self.category}', for type '{self.type}'")
         
         return self
+    
+class TransactionUpdate(Transaction):
+    pass
 
 class LineTransactionCreate(Transaction):
     line_user_id: str

@@ -7,7 +7,7 @@ let currentOffset = 0;
 let currentTransactionType = "";
 let isLoadingTransactions = false;
 
-
+const transactionsById = new Map();
 
 function formatMoney(value) {
     const numberValue = Number(value || 0);
@@ -22,13 +22,18 @@ function formatMoney(value) {
     ).format(numberValue);
 }
 
+async function refreshTransactions() {
+    await Promise.all([
+        loadSummary(),
+        loadTransactions(true),
+    ]);
+}
 
 function formatTransactionDate(dateString) {
     if (!dateString) {
         return "-";
     }
 
-    // ระบุ timezone เพื่อป้องกันบางเครื่องแสดงวันก่อนหน้า
     const date = new Date(
         `${dateString}T00:00:00+07:00`
     );
@@ -127,7 +132,7 @@ function showError(error) {
 async function initializeLiff() {
     showLoading("กำลังเตรียม Coinly...");
 
-    // ดึง LIFF ID จาก backend
+
     const configResponse = await fetch(
         "/api/v1/liff/config"
     );
@@ -150,8 +155,7 @@ async function initializeLiff() {
         liffId: config.liff_id,
     });
 
-    // ใน LIFF Browser จะ login ให้อัตโนมัติ
-    // แต่เมื่อเปิดผ่าน browser ภายนอก อาจยังไม่ได้ login
+
     if (!liff.isLoggedIn()) {
         liff.login({
             redirectUri: window.location.href,
@@ -262,6 +266,45 @@ function getCategoryUi(
     };
 }
 
+function populateCategoryOptions(
+    transactionType,
+    selectedCategory = "",
+) {
+    const categorySelect =
+        document.getElementById(
+            "edit-category"
+        );
+
+    const categories =
+        categoryUi?.[transactionType] || {};
+
+    categorySelect.innerHTML = "";
+
+    for (const [
+        categoryKey,
+        categoryConfig,
+    ] of Object.entries(categories)) {
+        const option =
+            document.createElement("option");
+
+        option.value = categoryKey;
+
+        const icon =
+            categoryConfig.icon || "";
+
+        const label =
+            categoryConfig.label
+            || categoryKey;
+
+        option.textContent =
+            `${icon} ${label}`.trim();
+
+        option.selected =
+            categoryKey === selectedCategory;
+
+        categorySelect.appendChild(option);
+    }
+}
 
 function createTransactionCard(transaction) {
     const transactionType =
@@ -283,7 +326,7 @@ function createTransactionCard(transaction) {
     const note =
         transaction.note
         || transaction.raw_text
-        || categoryNames[transaction.category]
+        || categoryConfig.label
         || "รายการ";
 
     const category =
@@ -292,9 +335,12 @@ function createTransactionCard(transaction) {
     const icon =
         categoryConfig.icon;
 
-    const card = document.createElement("article");
+    const card =
+        document.createElement("article");
 
     card.className = "transaction-card";
+    card.dataset.transactionId =
+        transaction.id;
 
     card.innerHTML = `
         <div class="transaction-icon ${transactionType}">
@@ -317,10 +363,32 @@ function createTransactionCard(transaction) {
             </p>
         </div>
 
-        <div class="transaction-amount ${transactionType}">
-            ${amountPrefix}${escapeHtml(
-                formatMoney(transaction.amount)
-            )}
+        <div class="transaction-right">
+            <div class="transaction-amount ${transactionType}">
+                ${amountPrefix}${escapeHtml(
+                    formatMoney(transaction.amount)
+                )}
+            </div>
+
+            <div class="transaction-actions">
+                <button
+                    type="button"
+                    class="transaction-action-button edit"
+                    data-action="edit"
+                    data-id="${escapeHtml(transaction.id)}"
+                >
+                    แก้ไข
+                </button>
+
+                <button
+                    type="button"
+                    class="transaction-action-button delete"
+                    data-action="delete"
+                    data-id="${escapeHtml(transaction.id)}"
+                >
+                    ลบ
+                </button>
+            </div>
         </div>
     `;
 
@@ -346,6 +414,7 @@ async function loadTransactions(reset = false) {
     try {
         if (reset) {
             currentOffset = 0;
+            transactionsById.clear();
 
             document
                 .getElementById("transaction-list")
@@ -378,6 +447,11 @@ async function loadTransactions(reset = false) {
             );
 
         for (const transaction of data.items) {
+            transactionsById.set(
+                transaction.id,
+                transaction,
+            );
+
             transactionList.appendChild(
                 createTransactionCard(transaction)
             );
@@ -411,6 +485,206 @@ async function loadTransactions(reset = false) {
     }
 }
 
+function openEditModal(transactionId) {
+    const transaction =
+        transactionsById.get(transactionId);
+
+    if (!transaction) {
+        showError(
+            new Error("ไม่พบข้อมูลรายการ")
+        );
+        return;
+    }
+
+    document
+        .getElementById("edit-transaction-id")
+        .value = transaction.id;
+
+    document
+        .getElementById("edit-type")
+        .value = transaction.type;
+
+    document
+        .getElementById("edit-amount")
+        .value = transaction.amount;
+
+    document
+        .getElementById("edit-date")
+        .value = transaction.transaction_date;
+
+    document
+        .getElementById("edit-note")
+        .value = transaction.note || "";
+
+    populateCategoryOptions(
+        transaction.type,
+        transaction.category,
+    );
+
+    document
+        .getElementById("edit-modal")
+        .classList.remove("hidden");
+
+    document.body.classList.add(
+        "modal-open"
+    );
+}
+
+async function refreshTransactions() {
+    await Promise.all([
+        loadSummary(),
+        loadTransactions(true),
+    ]);
+}
+
+async function submitTransactionEdit(event) {
+    event.preventDefault();
+
+    const transactionId =
+        document
+            .getElementById(
+                "edit-transaction-id"
+            )
+            .value;
+
+    const saveButton =
+        document.getElementById(
+            "save-edit-button"
+        );
+
+    const payload = {
+        transaction_date:
+            document
+                .getElementById("edit-date")
+                .value,
+
+        type:
+            document
+                .getElementById("edit-type")
+                .value,
+
+        category:
+            document
+                .getElementById(
+                    "edit-category"
+                )
+                .value,
+
+        amount: Number(
+            document
+                .getElementById(
+                    "edit-amount"
+                )
+                .value
+        ),
+
+        note:
+            document
+                .getElementById("edit-note")
+                .value
+                .trim()
+            || null,
+    };
+
+    saveButton.disabled = true;
+    saveButton.textContent =
+        "กำลังบันทึก...";
+
+    try {
+        await fetchJson(
+            `/api/v1/liff/transactions/${
+                encodeURIComponent(
+                    transactionId
+                )
+            }`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type":
+                        "application/json",
+                },
+                body: JSON.stringify(payload),
+            }
+        );
+
+        closeEditModal();
+
+        await refreshTransactions();
+
+        window.alert(
+            "แก้ไขรายการสำเร็จ"
+        );
+    } catch (error) {
+        showError(error);
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = "บันทึก";
+    }
+}
+
+async function deleteTransaction(
+    transactionId,
+    button,
+) {
+    const transaction =
+        transactionsById.get(transactionId);
+
+    if (!transaction) {
+        showError(
+            new Error("ไม่พบข้อมูลรายการ")
+        );
+        return;
+    }
+
+    const name =
+        transaction.note
+        || transaction.raw_text
+        || "รายการนี้";
+
+    const confirmed = window.confirm(
+        `ต้องการลบ "${name}" หรือไม่?\n`
+        + "เมื่อลบแล้วจะไม่สามารถย้อนกลับได้"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "กำลังลบ...";
+
+    try {
+        await fetchJson(
+            `/api/v1/liff/transactions/${
+                encodeURIComponent(
+                    transactionId
+                )
+            }`,
+            {
+                method: "DELETE",
+            }
+        );
+
+        await refreshTransactions();
+
+        window.alert("ลบรายการสำเร็จ");
+    } catch (error) {
+        button.disabled = false;
+        button.textContent = "ลบ";
+        showError(error);
+    }
+}
+
+
+function closeEditModal() {
+    document
+        .getElementById("edit-modal")
+        .classList.add("hidden");
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+}
 
 function setupEvents() {
     const filterButtons =
@@ -472,3 +746,74 @@ document.addEventListener(
         }
     }
 );
+
+const transactionList =
+    document.getElementById(
+        "transaction-list"
+    );
+
+transactionList.addEventListener(
+    "click",
+    async (event) => {
+        const actionButton =
+            event.target.closest(
+                "[data-action]"
+            );
+
+        if (!actionButton) {
+            return;
+        }
+
+        const transactionId =
+            actionButton.dataset.id;
+
+        const action =
+            actionButton.dataset.action;
+
+        if (action === "edit") {
+            openEditModal(transactionId);
+            return;
+        }
+
+        if (action === "delete") {
+            await deleteTransaction(
+                transactionId,
+                actionButton,
+            );
+        }
+    }
+);
+
+
+document
+    .getElementById(
+        "edit-transaction-form"
+    )
+    .addEventListener(
+        "submit",
+        submitTransactionEdit,
+    );
+
+
+document
+    .getElementById("edit-type")
+    .addEventListener(
+        "change",
+        (event) => {
+            populateCategoryOptions(
+                event.target.value
+            );
+        }
+    );
+
+
+document
+    .querySelectorAll(
+        "[data-close-modal]"
+    )
+    .forEach((element) => {
+        element.addEventListener(
+            "click",
+            closeEditModal,
+        );
+    });
