@@ -1,47 +1,12 @@
 const PAGE_SIZE = 20;
 
 let lineIdToken = null;
+let categoryUi = {};
+
 let currentOffset = 0;
 let currentTransactionType = "";
 let isLoadingTransactions = false;
 
-
-const categoryNames = {
-    salary: "เงินเดือน",
-    freelance: "งานอิสระ",
-    investment: "การลงทุน",
-    gift: "ของขวัญ",
-    food: "อาหาร",
-    transport: "การเดินทาง",
-    shopping: "ช้อปปิ้ง",
-    housing: "ที่อยู่อาศัย",
-    utilities: "ค่าสาธารณูปโภค",
-    health: "สุขภาพ",
-    education: "การศึกษา",
-    entertainment: "ความบันเทิง",
-    subscription: "สมาชิก/บริการรายเดือน",
-    travel: "ท่องเที่ยว",
-    other: "อื่น ๆ",
-};
-
-
-const categoryIcons = {
-    salary: "💰",
-    freelance: "💻",
-    investment: "📈",
-    gift: "🎁",
-    food: "🍜",
-    transport: "🚗",
-    shopping: "🛍️",
-    housing: "🏠",
-    utilities: "💡",
-    health: "🏥",
-    education: "📚",
-    entertainment: "🎬",
-    subscription: "📱",
-    travel: "✈️",
-    other: "🧾",
-};
 
 
 function formatMoney(value) {
@@ -179,6 +144,8 @@ async function initializeLiff() {
         throw new Error("ไม่พบ LIFF ID");
     }
 
+    categoryUi = config.category_ui || {};
+
     await liff.init({
         liffId: config.liff_id,
     });
@@ -267,6 +234,34 @@ async function loadSummary() {
             `${summary.transaction_count || 0} รายการ`;
 }
 
+function getCategoryUi(
+    transactionType,
+    categoryKey,
+) {
+    const categoryConfig = 
+        categoryUi
+            ?.[transactionType]
+            ?.[categoryKey];
+
+    if (categoryConfig) {
+        return categoryConfig;
+    }
+
+    const fallbackConfig =
+        categoryUi
+            ?.[transactionType]
+            ?.other;
+    
+    if (fallbackConfig) {
+        return fallbackConfig;
+    }
+
+    return {
+        label: categoryKey || "อื่น ๆ",
+        icon: "🧾",
+    };
+}
+
 
 function createTransactionCard(transaction) {
     const transactionType =
@@ -280,6 +275,11 @@ function createTransactionCard(transaction) {
     const amountPrefix =
         isIncome ? "+" : "-";
 
+    const categoryConfig = getCategoryUi(
+        transactionType,
+        transaction.category,
+    );
+
     const note =
         transaction.note
         || transaction.raw_text
@@ -287,13 +287,10 @@ function createTransactionCard(transaction) {
         || "รายการ";
 
     const category =
-        categoryNames[transaction.category]
-        || transaction.category
-        || "อื่น ๆ";
+        categoryConfig.label;
 
     const icon =
-        categoryIcons[transaction.category]
-        || "🧾";
+        categoryConfig.icon;
 
     const card = document.createElement("article");
 

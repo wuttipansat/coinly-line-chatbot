@@ -5,6 +5,7 @@ from fastapi import APIRouter, Header, HTTPException, Query, status
 from app.core.config import settings
 from app.repositories.supabase_repository import SupabaseRepository
 from app.services.line_liff_auth_service import verify_line_id_token
+from app.core.transaction_config import get_category_ui
 
 
 router = APIRouter()
@@ -36,7 +37,8 @@ def extract_bearer_token(
 @router.get("/config")
 def get_liff_config():
     return {
-        "liff_id": settings.LIFF_ID
+        "liff_id": settings.LIFF_ID,
+        "category_ui": get_category_ui(),
     }
 
 @router.get("/summary")
