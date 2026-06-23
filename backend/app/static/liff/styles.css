@@ -532,3 +532,102 @@ body.modal-open {
     }
 }
 
+.date-filter-panel {
+    margin: 14px 0 18px;
+    padding: 14px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+}
+
+.date-filter-fields {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(140px, 1fr)
+    );
+    gap: 10px;
+}
+
+.date-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--gray-700);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.date-filter-control {
+    width: 100%;
+    padding: 10px 12px;
+    color: var(--navy);
+    font-size: 14px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+}
+
+.date-filter-control:focus {
+    outline: 2px solid rgba(5, 150, 105, 0.18);
+    border-color: var(--green);
+}
+
+.date-filter-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.apply-filter-button,
+.clear-filter-button {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.apply-filter-button {
+    color: var(--white);
+    background: var(--green);
+    border: 1px solid var(--green);
+}
+
+.clear-filter-button {
+    color: var(--gray-700);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+}
+
+.active-date-filter {
+    margin: 10px 0 0;
+    color: var(--gray-500);
+    font-size: 12px;
+    text-align: center;
+}
+
+
+/* Date filter states */
+.date-filter-panel.has-active-filter {
+    border-color: rgba(5, 150, 105, 0.45);
+    box-shadow: 0 6px 18px rgba(5, 150, 105, 0.08);
+}
+
+.date-filter-panel.has-active-filter .active-date-filter {
+    color: var(--green);
+    font-weight: 700;
+}
+
+.apply-filter-button:disabled,
+.clear-filter-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+@media (max-width: 420px) {
+    .date-filter-fields {
+        grid-template-columns: 1fr;
+    }
+}

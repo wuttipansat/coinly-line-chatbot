@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="./styles.css?v=5"
+        href="./styles.css?v=6"
     >
 </head>
 
@@ -112,7 +112,82 @@
                     รายจ่าย
                 </button>
             </div>
+            
+            <div class="date-filter-panel">
+                <div class="date-filter-fields">
+                    <label class="date-filter-field">
+                        <span>กรองตาม</span>
 
+                        <select
+                            id="date-filter-mode"
+                            class="date-filter-control"
+                        >
+                            <option value="all">
+                                ทุกช่วงเวลา
+                            </option>
+
+                            <option value="month">
+                                เดือน
+                            </option>
+
+                            <option value="date">
+                                วันที่
+                            </option>
+                        </select>
+                    </label>
+
+                    <label
+                        id="month-filter-group"
+                        class="date-filter-field hidden"
+                    >
+                        <span>เลือกเดือน</span>
+
+                        <input
+                            id="month-filter"
+                            class="date-filter-control"
+                            type="month"
+                        >
+                    </label>
+
+                    <label
+                        id="specific-date-filter-group"
+                        class="date-filter-field hidden"
+                    >
+                        <span>เลือกวันที่</span>
+
+                        <input
+                            id="specific-date-filter"
+                            class="date-filter-control"
+                            type="date"
+                        >
+                    </label>
+                </div>
+
+                <div class="date-filter-actions">
+                    <button
+                        id="apply-date-filter-button"
+                        class="apply-filter-button"
+                        type="button"
+                    >
+                        ใช้ตัวกรอง
+                    </button>
+
+                    <button
+                        id="clear-date-filter-button"
+                        class="clear-filter-button"
+                        type="button"
+                    >
+                        ล้าง
+                    </button>
+                </div>
+
+                <p
+                    id="active-date-filter"
+                    class="active-date-filter"
+                >
+                    แสดงข้อมูลทุกช่วงเวลา
+                </p>
+            </div>
             <div id="transaction-list" class="transaction-list">
             </div>
 
@@ -121,8 +196,8 @@
                 class="empty-state hidden"
             >
                 <div class="empty-icon">🐿️</div>
-                <h3>ยังไม่มีรายการ</h3>
-                <p>ส่งข้อความหา Coinly เพื่อบันทึกรายการแรก</p>
+                <h3 id="empty-state-title">ยังไม่มีรายการ</h3>
+                <p id="empty-state-message">ส่งข้อความหา Coinly เพื่อบันทึกรายการแรก</p>
             </div>
 
             <button
@@ -253,6 +328,6 @@
         src="https://static.line-scdn.net/liff/edge/2/sdk.js"
     ></script>
 
-    <script src="./app.js?v=5" defer></script>
+    <script src="./app.js?v=6" defer></script>
 </body>
 </html>
