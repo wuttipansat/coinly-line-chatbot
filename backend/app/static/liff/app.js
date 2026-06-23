@@ -11,8 +11,24 @@ let currentEndDate = "";
 let currentDateFilterMode = "all";
 let currentDateFilterValue = "";
 let isLoadingTransactions = false;
+let isRefreshingTransactions = false;
+
 
 const transactionsById = new Map();
+
+function setFilterControlsDisabled(disabled) {
+    document
+        .querySelectorAll(".filter-button")
+        .forEach((button) => {
+            button.disabled = disabled;
+        });
+
+    getElement("date-filter-mode").disabled = disabled;
+    getElement("month-filter").disabled = disabled;
+    getElement("specific-date-filter").disabled = disabled;
+    getElement("apply-date-filter-button").disabled = disabled;
+    getElement("clear-date-filter-button").disabled = disabled;
+}
 
 function getElement(id) {
     const element = document.getElementById(id);
@@ -276,6 +292,7 @@ async function applyDateFilter() {
 
     let nextStartDate = "";
     let nextEndDate = "";
+    let nextFilterValue = "";
 
     if (mode === "month") {
         const monthValue = getElement("month-filter").value;
@@ -289,10 +306,16 @@ async function applyDateFilter() {
         }
 
         const range = getMonthDateRange(monthValue);
+
         nextStartDate = range.startDate;
-        nextEndDate = range.endDate > today ? today : range.endDate;
+        nextEndDate = range.endDate > today
+            ? today
+            : range.endDate;
+
+        nextFilterValue = monthValue;
     } else if (mode === "date") {
-        const dateValue = getElement("specific-date-filter").value;
+        const dateValue =
+            getElement("specific-date-filter").value;
 
         if (!dateValue) {
             throw new Error("กรุณาเลือกวันที่ที่ต้องการกรอง");
@@ -304,25 +327,53 @@ async function applyDateFilter() {
 
         nextStartDate = dateValue;
         nextEndDate = dateValue;
+        nextFilterValue = dateValue;
     } else if (mode !== "all") {
         throw new Error("รูปแบบตัวกรองไม่ถูกต้อง");
     }
 
+    const previousFilter = {
+        startDate: currentStartDate,
+        endDate: currentEndDate,
+        mode: currentDateFilterMode,
+        value: currentDateFilterValue,
+    };
+
     currentStartDate = nextStartDate;
     currentEndDate = nextEndDate;
     currentDateFilterMode = mode;
-    currentDateFilterValue =
-        mode === "month"
-            ? getElement("month-filter").value
-            : mode === "date"
-                ? getElement("specific-date-filter").value
-                : "";
+    currentDateFilterValue = nextFilterValue;
+
     updateActiveDateFilterText();
 
-    await refreshTransactions();
+    try {
+        await refreshTransactions();
+    } catch (error) {
+        currentStartDate = previousFilter.startDate;
+        currentEndDate = previousFilter.endDate;
+        currentDateFilterMode = previousFilter.mode;
+        currentDateFilterValue = previousFilter.value;
+
+        updateActiveDateFilterText();
+
+        throw error;
+    }
 }
 
 async function clearDateFilter() {
+    const previousFilter = {
+        startDate: currentStartDate,
+        endDate: currentEndDate,
+        mode: currentDateFilterMode,
+        value: currentDateFilterValue,
+    };
+
+    const previousControls = {
+        mode: getElement("date-filter-mode").value,
+        month: getElement("month-filter").value,
+        date: getElement("specific-date-filter").value,
+    };
+
     currentStartDate = "";
     currentEndDate = "";
     currentDateFilterMode = "all";
@@ -335,22 +386,40 @@ async function clearDateFilter() {
     updateDateFilterVisibility();
     updateActiveDateFilterText();
 
-    await refreshTransactions();
+    try {
+        await refreshTransactions();
+    } catch (error) {
+        currentStartDate = previousFilter.startDate;
+        currentEndDate = previousFilter.endDate;
+        currentDateFilterMode = previousFilter.mode;
+        currentDateFilterValue = previousFilter.value;
+
+        getElement("date-filter-mode").value =
+            previousControls.mode;
+
+        getElement("month-filter").value =
+            previousControls.month;
+
+        getElement("specific-date-filter").value =
+            previousControls.date;
+
+        updateDateFilterVisibility();
+        updateActiveDateFilterText();
+
+        throw error;
+    }
 }
 
 function initializeDateFilterControls() {
     const today = getBangkokTodayIso();
     const currentMonth = today.slice(0, 7);
 
-    const monthInput = getElement("month-filter");
-    const dateInput = getElement("specific-date-filter");
+    getElement("month-filter").max = currentMonth;
+    getElement("specific-date-filter").max = today;
+    getElement("edit-date").max = today;
 
-    monthInput.max = currentMonth;
-    dateInput.max = today;
-
-    // ใช้เป็นค่าเริ่มต้นเมื่อผู้ใช้เลือกโหมด โดยยังไม่เปิด filter ทันที
-    monthInput.value = currentMonth;
-    dateInput.value = today;
+    getElement("month-filter").value = currentMonth;
+    getElement("specific-date-filter").value = today;
 
     updateDateFilterVisibility();
     updateActiveDateFilterText();
@@ -587,24 +656,23 @@ async function loadTransactions(reset = false) {
     isLoadingTransactions = true;
 
     const loadMoreButton = getElement("load-more-button");
+
     loadMoreButton.disabled = true;
     loadMoreButton.textContent = "กำลังโหลด...";
 
     try {
-        if (reset) {
-            currentOffset = 0;
-            transactionsById.clear();
-            getElement("transaction-list").innerHTML = "";
-            updateEmptyState(false);
-        }
+        const requestedOffset = reset ? 0 : currentOffset;
 
         const params = new URLSearchParams({
             limit: String(PAGE_SIZE),
-            offset: String(currentOffset),
+            offset: String(requestedOffset),
         });
 
         if (currentTransactionType) {
-            params.set("transaction_type", currentTransactionType);
+            params.set(
+                "transaction_type",
+                currentTransactionType
+            );
         }
 
         appendDateFilterParams(params);
@@ -613,19 +681,38 @@ async function loadTransactions(reset = false) {
             `/api/v1/liff/transactions?${params.toString()}`
         );
 
-        const items = Array.isArray(data.items) ? data.items : [];
-        const transactionList = getElement("transaction-list");
+        const items = Array.isArray(data.items)
+            ? data.items
+            : [];
+
+        const transactionList =
+            getElement("transaction-list");
+
+        if (reset) {
+            currentOffset = 0;
+            transactionsById.clear();
+            transactionList.innerHTML = "";
+        }
 
         for (const transaction of items) {
-            transactionsById.set(transaction.id, transaction);
-            transactionList.appendChild(createTransactionCard(transaction));
+            transactionsById.set(
+                transaction.id,
+                transaction
+            );
+
+            transactionList.appendChild(
+                createTransactionCard(transaction)
+            );
         }
 
         if (reset) {
             updateEmptyState(items.length === 0);
         }
 
-        if (data.has_more && data.next_offset !== null) {
+        if (
+            data.has_more
+            && data.next_offset !== null
+        ) {
             currentOffset = Number(data.next_offset);
             loadMoreButton.classList.remove("hidden");
         } else {
@@ -639,12 +726,31 @@ async function loadTransactions(reset = false) {
 }
 
 async function refreshTransactions() {
+    if (isRefreshingTransactions) {
+        return;
+    }
+
+    isRefreshingTransactions = true;
+    setFilterControlsDisabled(true);
     clearError();
 
-    await Promise.all([
-        loadSummary(),
-        loadTransactions(true),
-    ]);
+    try {
+        const results = await Promise.allSettled([
+            loadSummary(),
+            loadTransactions(true),
+        ]);
+
+        const failedResult = results.find(
+            (result) => result.status === "rejected"
+        );
+
+        if (failedResult) {
+            throw failedResult.reason;
+        }
+    } finally {
+        isRefreshingTransactions = false;
+        setFilterControlsDisabled(false);
+    }
 }
 
 function openEditModal(transactionId) {
@@ -675,11 +781,33 @@ function closeEditModal() {
 async function submitTransactionEdit(event) {
     event.preventDefault();
 
-    const transactionId = getElement("edit-transaction-id").value;
-    const saveButton = getElement("save-edit-button");
+    const transactionId =
+        getElement("edit-transaction-id").value;
+
+    const saveButton =
+        getElement("save-edit-button");
+
+    const transactionDate =
+        getElement("edit-date").value;
+
+    const today = getBangkokTodayIso();
+
+    if (!transactionDate) {
+        showError(new Error("กรุณาเลือกวันที่"));
+        return;
+    }
+
+    if (transactionDate > today) {
+        showError(
+            new Error(
+                "วันที่ทำรายการต้องไม่เป็นวันที่ในอนาคต"
+            )
+        );
+        return;
+    }
 
     const payload = {
-        transaction_date: getElement("edit-date").value,
+        transaction_date: transactionDate,
         type: getElement("edit-type").value,
         category: getElement("edit-category").value,
         amount: Number(getElement("edit-amount").value),
@@ -755,16 +883,39 @@ function setupEvents() {
 
     for (const button of filterButtons) {
         button.addEventListener("click", async () => {
-            filterButtons.forEach((item) => item.classList.remove("active"));
-            button.classList.add("active");
+            if (isRefreshingTransactions) {
+                return;
+            }
 
+            const previousType = currentTransactionType;
+            const previousActiveButton =
+                document.querySelector(".filter-button.active");
+
+            filterButtons.forEach((item) => {
+                item.classList.remove("active");
+            });
+
+            button.classList.add("active");
             currentTransactionType = button.dataset.type || "";
+
+            isRefreshingTransactions = true;
+            setFilterControlsDisabled(true);
 
             try {
                 clearError();
                 await loadTransactions(true);
             } catch (error) {
+                currentTransactionType = previousType;
+
+                filterButtons.forEach((item) => {
+                    item.classList.remove("active");
+                });
+
+                previousActiveButton?.classList.add("active");
                 showError(error);
+            } finally {
+                isRefreshingTransactions = false;
+                setFilterControlsDisabled(false);
             }
         });
     }
@@ -809,11 +960,21 @@ function setupEvents() {
     getElement("load-more-button").addEventListener(
         "click",
         async () => {
+            if (isRefreshingTransactions) {
+                return;
+            }
+
+            isRefreshingTransactions = true;
+            setFilterControlsDisabled(true);
+
             try {
                 clearError();
                 await loadTransactions(false);
             } catch (error) {
                 showError(error);
+            } finally {
+                isRefreshingTransactions = false;
+                setFilterControlsDisabled(false);
             }
         }
     );

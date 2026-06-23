@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -12,6 +12,16 @@ class Transaction(BaseModel):
     amount: float = Field(gt=0)
     note: Optional[str] = None
 
+    @field_validator("transaction_date")
+    @classmethod
+    def validate_transaction_date(cls, value: date) -> date:
+        bangkok_tz = timezone(timedelta(hours=7))
+        today = datetime.now(bangkok_tz).date()
+
+        if value > today:
+            raise ValueError("Transaction date cannot be in the future")
+        return value
+    
     @field_validator("type")
     @classmethod
     def validate_type(cls, value: str) -> str:

@@ -1,4 +1,5 @@
 from typing import Annotated, Literal
+from datetime import date, datetime, timedelta, timezone
 
 from fastapi import APIRouter, Header, HTTPException, Query, status
 
@@ -35,6 +36,31 @@ def extract_bearer_token(
     
     return token.strip()
 
+def validate_date_range(
+        start_date: date | None,
+        end_date: date | None,
+) -> None:
+    bangkok_tz = timezone(timedelta(hours=7))
+    today = datetime.now(bangkok_tz).date()
+
+    if start_date and end_date and start_date > end_date:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="start_date ต้องไม่มากกว่า end_date",
+        )
+    
+    if start_date and start_date > today:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="ไม่สามารถเลือกวันที่ในอนาคตได้",
+        )
+    
+    if end_date and end_date > today:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="ไม่สามารถเลือกวันที่ในอนาคตได้"
+        )
+
 @router.get("/config")
 def get_liff_config():
     return {
@@ -45,14 +71,19 @@ def get_liff_config():
 @router.get("/summary")
 async def get_all_transaction_summary(
     authorization: Annotated[str | None, Header()] = None,
+    start_date: date | None = Query(default=None),
+    end_date: date | None = Query(default=None),
 ):
+    validate_date_range(start_date, end_date)
+
     id_token = extract_bearer_token(authorization)
     token_payload = await verify_line_id_token(id_token)
-
     line_user_id = token_payload["sub"]
 
     summary = supabase_repo.get_summary(
-        line_user_id=line_user_id
+        line_user_id=line_user_id,
+        start_date=start_date,
+        end_date=end_date,
     )
 
     return summary
@@ -65,10 +96,13 @@ async def get_all_transactions(
     transaction_type: Literal["income", "expense"] | None = Query(
         default=None
     ),
+    start_date: date | None = Query(default=None),
+    end_date: date | None = Query(default=None),
 ):
+    validate_date_range(start_date, end_date)
+
     id_token = extract_bearer_token(authorization)
     token_payload = await verify_line_id_token(id_token)
-
     line_user_id = token_payload["sub"]
 
     items, has_more = (
@@ -77,6 +111,8 @@ async def get_all_transactions(
             limit=limit,
             offset=offset,
             transaction_type=transaction_type,
+            start_date=start_date,
+            end_date=end_date,
         )
     )
 
@@ -166,3 +202,5 @@ async def delete_transaction(
         "item": deleted,
     }
 
+
+    

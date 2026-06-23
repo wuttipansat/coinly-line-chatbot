@@ -211,6 +211,8 @@ class SupabaseRepository:
             limit: int = 20,
             offset: int = 0,
             transaction_type: str | None = None,
+            start_date: date | None = None,
+            end_date: date | None = None,
 
     ) -> tuple[list[dict], bool]:
         
@@ -230,6 +232,16 @@ class SupabaseRepository:
 
         if transaction_type:
             params.append(("type", f"eq.{transaction_type}"))
+
+        if start_date:
+            params.append(
+                ("transaction_date", f"gte.{start_date.isoformat()}")
+            )
+
+        if end_date:
+            params.append(
+                ("transaction_date", f"lte.{end_date.isoformat()}")
+            )
 
         response = httpx.get(
             f"{self.base_url}/rest/v1/line_transactions",
