@@ -101,11 +101,6 @@ categories:
       description: Netflix Spotify YouTube Premium แอปสมาชิก ค่าสมาชิกรายเดือน
       icon: "📱"
 
-    travel:
-      label: ท่องเที่ยว
-      description: โรงแรม ตั๋วเครื่องบิน ทริป ท่องเที่ยว ที่พัก และไม่ใช้กับคำว่าเดินทางทั่วไป
-      icon: "✈️"
-
     sport:
       label: กีฬา
       description: กีฬา การออกกำลังกาย ค่าสนาม และอุปกรณ์กีฬา
