@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import json
 import re
+import logging
 
 from openai import OpenAI
 
@@ -11,6 +12,7 @@ from app.core.transaction_config import(
     get_all_category_descriptions
 )
 
+logger = logging.getLogger(__name__)
 transaction_types = get_transaction_type_descriptions()
 categories = get_all_category_descriptions()
 
@@ -64,6 +66,15 @@ Requirements:
         ],
         temperature=0,
     )
+
+    usage = getattr(response, "usage", None)
+    if usage:
+        logger.info(
+            "AI token usage: prompt=%s completion=%s total=%s",
+            usage.prompt_tokens,
+            usage.completion_tokens,
+            usage.total_tokens,
+        )
     
     content = response.choices[0].message.content
 
