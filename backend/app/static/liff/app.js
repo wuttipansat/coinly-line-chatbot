@@ -13,29 +13,6 @@ const CHART_COLORS = [
     "#F48CA4",
 ];
 
-const CATEGORY_FALLBACKS = {
-    income: {
-        salary: { label: "เงินเดือน", icon: "ง" },
-        freelance: { label: "ฟรีแลนซ์", icon: "ฟ" },
-        investment: { label: "ลงทุน", icon: "ล" },
-        gift: { label: "ของขวัญ", icon: "ข" },
-        other: { label: "รายรับอื่น ๆ", icon: "+" },
-    },
-    expense: {
-        food: { label: "อาหารและเครื่องดื่ม", icon: "อ" },
-        transport: { label: "เดินทาง", icon: "ด" },
-        shopping: { label: "ช้อปปิง", icon: "ช" },
-        housing: { label: "ที่พัก", icon: "ท" },
-        utilities: { label: "บิลและค่าสาธารณูปโภค", icon: "บ" },
-        health: { label: "สุขภาพ", icon: "ส" },
-        education: { label: "การศึกษา", icon: "ก" },
-        entertainment: { label: "บันเทิง", icon: "บ" },
-        subscription: { label: "สมาชิก", icon: "ส" },
-        travel: { label: "ท่องเที่ยว", icon: "ท" },
-        other: { label: "รายจ่ายอื่น ๆ", icon: "−" },
-    },
-};
-
 const TYPE_LABELS = {
     income: "รายรับ",
     expense: "รายจ่าย",
@@ -497,30 +474,34 @@ async function fetchAllTransactions({
 }
 
 function getCategoryUi(transactionType, categoryKey) {
-    const backendConfig = state.categoryUi?.[transactionType]?.[categoryKey];
-    const fallback = CATEGORY_FALLBACKS[transactionType]?.[categoryKey]
-        || CATEGORY_FALLBACKS[transactionType]?.other
-        || { label: categoryKey || "อื่น ๆ", icon: transactionType === "income" ? "+" : "−" };
+    const categoryConfig = state.categoryUi?.[transactionType]?.[categoryKey];
 
-    const backendLabel = backendConfig?.label;
-    const label = backendLabel && backendLabel !== categoryKey
-        ? backendLabel
-        : fallback.label || categoryKey || "อื่น ๆ";
+    if (categoryConfig) {
+        const label = categoryConfig.label || categoryKey || "ไม่ระบุหมวดหมู่";
+
+        return {
+            label,
+            icon: categoryConfig.icon || label.charAt(0),
+        };
+    }
+
+    const otherConfig = state.categoryUi?.[transactionType]?.other;
+    const label = categoryKey || otherConfig?.label || "ไม่ระบุหมวดหมู่";
 
     return {
         label,
-        icon: backendConfig?.icon || fallback.icon || label.charAt(0),
+        icon: otherConfig?.icon || label.charAt(0),
     };
 }
 
 function getCategoryEntries(transactionType) {
-    const backendEntries = Object.entries(state.categoryUi?.[transactionType] || {});
+    return Object
+        .entries(state.categoryUi?.[transactionType] || {})
+        .map(([key]) => [key, getCategoryUi(transactionType, key)]);
+}
 
-    if (backendEntries.length > 0) {
-        return backendEntries.map(([key]) => [key, getCategoryUi(transactionType, key)]);
-    }
-
-    return Object.entries(CATEGORY_FALLBACKS[transactionType] || {});
+function isCategoryConfigured(transactionType, categoryKey) {
+    return Boolean(state.categoryUi?.[transactionType]?.[categoryKey]);
 }
 
 function getTransactionDisplay(transaction) {
@@ -645,9 +626,7 @@ function buildChartSegments(transactions) {
             amount,
             percent: amount / totalExpense,
             color: CHART_COLORS[index % CHART_COLORS.length],
-            label: categoryKey === "other"
-                ? "อื่น ๆ"
-                : getCategoryUi("expense", categoryKey).label,
+            label: getCategoryUi("expense", categoryKey).label,
         })),
     };
 }
@@ -1073,14 +1052,36 @@ function setFieldError(fieldId, message) {
 function populateCategoryOptions(transactionType, selectedCategory = "") {
     const entries = getCategoryEntries(transactionType);
     elements["edit-category"].innerHTML = "";
+    let hasSelectedCategory = false;
+
+    if (entries.length === 0) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "ไม่พบหมวดหมู่จากการตั้งค่า";
+        option.disabled = true;
+        option.selected = true;
+        elements["edit-category"].appendChild(option);
+        return;
+    }
 
     entries.forEach(([categoryKey, config]) => {
         const option = document.createElement("option");
         option.value = categoryKey;
         option.textContent = `${config.icon ? `${config.icon} ` : ""}${config.label}`.trim();
         option.selected = categoryKey === selectedCategory;
+        hasSelectedCategory = hasSelectedCategory || option.selected;
         elements["edit-category"].appendChild(option);
     });
+
+    if (selectedCategory && !hasSelectedCategory) {
+        const selectedConfig = getCategoryUi(transactionType, selectedCategory);
+        const option = document.createElement("option");
+        option.value = selectedCategory;
+        option.textContent = `${selectedConfig.icon ? `${selectedConfig.icon} ` : ""}${selectedConfig.label} (ไม่ได้อยู่ในการตั้งค่า)`.trim();
+        option.disabled = true;
+        option.selected = true;
+        elements["edit-category"].prepend(option);
+    }
 }
 
 function openEditSheet(transactionId = state.selectedTransactionId) {
@@ -1119,6 +1120,9 @@ function validateEditForm() {
 
     if (!category) {
         setFieldError("edit-category", "กรุณาเลือกหมวดหมู่");
+        valid = false;
+    } else if (!isCategoryConfigured(type, category)) {
+        setFieldError("edit-category", "กรุณาเลือกหมวดหมู่จากการตั้งค่า");
         valid = false;
     }
 

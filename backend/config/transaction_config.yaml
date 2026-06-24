@@ -63,7 +63,7 @@ categories:
 
     transport:
       label: การเดินทาง
-      description: ค่าเดินทาง รถไฟฟ้า รถเมล์ แท็กซี่ น้ำมัน ค่ารถ ค่าโดยสาร
+      description: เดินทาง รถไฟฟ้า รถเมล์ แท็กซี่ น้ำมัน ค่ารถ ค่าโดยสาร
       icon: "🚗"
 
     shopping:
