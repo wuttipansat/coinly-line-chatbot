@@ -40,46 +40,61 @@ def reply_transaction_card(
 
     if transaction_type == "income":
         type_label = "รายรับ"
-        title = "บันทึกรายรับสำเร็จ"
-        amount_color = "#16A34A"
-        type_emoji = "💰"
+        title = "บันทึกรายรับแล้ว"
+        amount_text = f"+{amount:,.2f} บาท"
+        amount_color = "#C8892E"
+        accent_color = "#FFD384"
+        soft_color = "#FFF3D8"
     else:
         type_label = "รายจ่าย"
-        title = "บันทึกรายจ่ายสำเร็จ"
-        amount_color = "#DC2626"
-        type_emoji = "💸"
-
+        title = "บันทึกรายจ่ายแล้ว"
+        amount_text = f"-{amount:,.2f} บาท"
+        amount_color = "#C85B73"
+        accent_color = "#FFAEC0"
+        soft_color = "#FFE8EE"
 
     flex_content = {
         "type": "bubble",
         "size": "mega",
         "styles": {
+            "header": {
+                "backgroundColor": "#FFFDF8"
+            },
             "body": {
-                "backgroundColor": "#FFF8E1"
+                "backgroundColor": "#FFFDF8"
             },
             "footer": {
-                "backgroundColor": "#FFF8E1"
+                "backgroundColor": "#FFFDF8"
             }
         },
         "header": {
             "type": "box",
             "layout": "vertical",
-            "backgroundColor": "#D4AF37",
             "paddingAll": "18px",
             "contents": [
                 {
                     "type": "text",
-                    "text": "🐷 Coinly",
+                    "text": "COINLY",
+                    "size": "xs",
                     "weight": "bold",
-                    "size": "xl",
-                    "color": "#3A2A0A"
+                    "color": "#C8892E"
                 },
                 {
                     "type": "text",
-                    "text": "ผู้ช่วยบันทึกรายรับรายจ่าย",
+                    "text": title,
+                    "size": "xl",
+                    "weight": "bold",
+                    "color": "#2D2926",
+                    "margin": "xs",
+                    "wrap": True
+                },
+                {
+                    "type": "text",
+                    "text": "บันทึกรายการสำเร็จ",
                     "size": "xs",
-                    "color": "#5C4510",
-                    "margin": "xs"
+                    "color": "#77716C",
+                    "margin": "xs",
+                    "wrap": True
                 }
             ]
         },
@@ -92,39 +107,55 @@ def reply_transaction_card(
                 {
                     "type": "box",
                     "layout": "vertical",
-                    "backgroundColor": "#FFF1B8",
-                    "cornerRadius": "16px",
-                    "paddingAll": "16px",
+                    "backgroundColor": soft_color,
+                    "cornerRadius": "18px",
+                    "paddingAll": "18px",
                     "contents": [
                         {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": type_label,
+                                    "size": "xs",
+                                    "weight": "bold",
+                                    "color": "#2D2926",
+                                    "flex": 0
+                                }
+                            ],
+                            "backgroundColor": "#FFFFFF",
+                            "cornerRadius": "999px",
+                            "paddingAll": "8px"
+                        },
+                        {
                             "type": "text",
-                            "text": f"{type_emoji} {title}",
+                            "text": amount_text,
                             "weight": "bold",
-                            "size": "lg",
-                            "color": "#3A2A0A",
+                            "size": "xxl",
+                            "color": amount_color,
+                            "margin": "lg",
                             "wrap": True
                         },
                         {
                             "type": "text",
-                            "text": f"{amount:,.2f} บาท",
-                            "weight": "bold",
-                            "size": "xxl",
-                            "color": amount_color,
-                            "margin": "md",
+                            "text": transaction.get("note") or "ไม่มีโน้ต",
+                            "size": "sm",
+                            "color": "#77716C",
+                            "margin": "sm",
                             "wrap": True
                         }
                     ]
                 },
                 {
-                    "type": "separator",
-                    "margin": "md",
-                    "color": "#E0C56E"
-                },
-                {
                     "type": "box",
                     "layout": "vertical",
                     "spacing": "sm",
-                    "margin": "md",
+                    "paddingAll": "14px",
+                    "backgroundColor": "#FFFFFF",
+                    "cornerRadius": "14px",
+                    "borderColor": "#EEE9E2",
+                    "borderWidth": "1px",
                     "contents": [
                         row_item("วันที่", transaction["transaction_date"]),
                         row_item("ประเภท", type_label),
@@ -144,7 +175,7 @@ def reply_transaction_card(
                     "type": "button",
                     "style": "primary",
                     "height": "sm",
-                    "color": "#D4AF37",
+                    "color": "#C8892E",
                     "action": {
                         "type": "message",
                         "label": "ดูรายการล่าสุด",
