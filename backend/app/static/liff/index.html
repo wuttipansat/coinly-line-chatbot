@@ -2,332 +2,486 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0,
-                 viewport-fit=cover"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     >
-
-    <title>รายการของฉัน</title>
-
-    <link
-        rel="stylesheet"
-        href="./styles.css?v=6"
-    >
+    <meta name="theme-color" content="#FFFDF8">
+    <title>Coinly</title>
+    <link rel="stylesheet" href="./styles.css?v=10">
 </head>
-
 <body>
-    <div id="loading-overlay" class="loading-overlay">
-        <div class="spinner"></div>
+    <div id="loading-overlay" class="loading-overlay" role="status" aria-live="polite">
+        <div class="loading-mark" aria-hidden="true">C</div>
         <p id="loading-message">กำลังเข้าสู่ระบบ...</p>
     </div>
 
     <div id="app" class="app hidden">
-        <header class="header">
-            <div>
-                <p class="brand">COINLY</p>
-                <h1>รายการของฉัน</h1>
+        <header class="app-header">
+            <div class="brand-block">
+                <p class="brand-label">COINLY</p>
+                <h1 id="screen-title">ภาพรวม</h1>
             </div>
 
-            <div class="profile">
+            <div class="profile" aria-label="โปรไฟล์ LINE">
                 <div class="profile-text">
                     <span>สวัสดี</span>
                     <strong id="profile-name">ผู้ใช้</strong>
                 </div>
-
-                <img
-                    id="profile-image"
-                    class="profile-image"
-                    alt="รูปโปรไฟล์"
-                >
+                <img id="profile-image" class="profile-image hidden" alt="รูปโปรไฟล์ LINE">
             </div>
         </header>
 
-        <section class="summary-section">
-            <div class="summary-card balance-card">
-                <span class="summary-label">ยอดคงเหลือ</span>
-                <strong id="balance-value">
-                    ฿0.00
-                </strong>
-            </div>
+        <div id="error-box" class="error-box hidden" role="alert"></div>
 
-            <div class="summary-grid">
-                <div class="summary-card">
-                    <span class="summary-label">
-                        รายรับทั้งหมด
-                    </span>
-
-                    <strong
-                        id="income-value"
-                        class="income-text"
-                    >
-                        ฿0.00
-                    </strong>
-                </div>
-
-                <div class="summary-card">
-                    <span class="summary-label">
-                        รายจ่ายทั้งหมด
-                    </span>
-
-                    <strong
-                        id="expense-value"
-                        class="expense-text"
-                    >
-                        ฿0.00
-                    </strong>
-                </div>
-            </div>
-
-            <p id="transaction-count" class="transaction-count">
-                0 รายการ
-            </p>
-        </section>
-
-        <section class="transaction-section">
-            <div class="section-heading">
-                <h2>ประวัติรายการ</h2>
-            </div>
-
-            <div class="filter-row">
-                <button
-                    class="filter-button active"
-                    data-type=""
-                >
-                    ทั้งหมด
-                </button>
-
-                <button
-                    class="filter-button"
-                    data-type="income"
-                >
-                    รายรับ
-                </button>
-
-                <button
-                    class="filter-button"
-                    data-type="expense"
-                >
-                    รายจ่าย
-                </button>
-            </div>
-            
-            <div class="date-filter-panel">
-                <div class="date-filter-fields">
-                    <label class="date-filter-field">
-                        <span>กรองตาม</span>
-
-                        <select
-                            id="date-filter-mode"
-                            class="date-filter-control"
-                        >
-                            <option value="all">
-                                ทุกช่วงเวลา
-                            </option>
-
-                            <option value="month">
-                                เดือน
-                            </option>
-
-                            <option value="date">
-                                วันที่
-                            </option>
-                        </select>
-                    </label>
-
-                    <label
-                        id="month-filter-group"
-                        class="date-filter-field hidden"
-                    >
-                        <span>เลือกเดือน</span>
-
-                        <input
-                            id="month-filter"
-                            class="date-filter-control"
-                            type="month"
-                        >
-                    </label>
-
-                    <label
-                        id="specific-date-filter-group"
-                        class="date-filter-field hidden"
-                    >
-                        <span>เลือกวันที่</span>
-
-                        <input
-                            id="specific-date-filter"
-                            class="date-filter-control"
-                            type="date"
-                        >
-                    </label>
-                </div>
-
-                <div class="date-filter-actions">
-                    <button
-                        id="apply-date-filter-button"
-                        class="apply-filter-button"
-                        type="button"
-                    >
-                        ใช้ตัวกรอง
-                    </button>
-
-                    <button
-                        id="clear-date-filter-button"
-                        class="clear-filter-button"
-                        type="button"
-                    >
-                        ล้าง
-                    </button>
-                </div>
-
-                <p
-                    id="active-date-filter"
-                    class="active-date-filter"
-                >
-                    แสดงข้อมูลทุกช่วงเวลา
-                </p>
-            </div>
-            <div id="transaction-list" class="transaction-list">
-            </div>
-
-            <div
-                id="empty-state"
-                class="empty-state hidden"
+        <main class="app-main">
+            <section
+                id="home-tab"
+                class="tab-panel"
+                aria-labelledby="home-nav-button"
             >
-                <div class="empty-icon">🐿️</div>
-                <h3 id="empty-state-title">ยังไม่มีรายการ</h3>
-                <p id="empty-state-message">ส่งข้อความหา Coinly เพื่อบันทึกรายการแรก</p>
-            </div>
-
-            <button
-                id="load-more-button"
-                class="load-more-button hidden"
-            >
-                ดูเพิ่มเติม
-            </button>
-        </section>
-        <div
-            id="edit-modal"
-            class="modal hidden"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="edit-modal-title"
-        >
-            <div
-                class="modal-backdrop"
-                data-close-modal
-            ></div>
-
-            <div class="modal-panel">
-                <div class="modal-header">
-                    <h2 id="edit-modal-title">
-                        แก้ไขรายการ
-                    </h2>
-
-                    <button
-                        type="button"
-                        class="modal-close-button"
-                        data-close-modal
-                        aria-label="ปิด"
-                    >
-                        ×
+                <div class="period-strip" aria-label="เลือกช่วงเวลา">
+                    <button class="period-button active" type="button" data-period-shortcut="this-month">
+                        เดือนนี้
+                    </button>
+                    <button class="period-button" type="button" data-period-shortcut="last-month">
+                        เดือนก่อน
+                    </button>
+                    <button class="period-button" type="button" data-period-shortcut="all">
+                        ทั้งหมด
                     </button>
                 </div>
 
-                <form id="edit-transaction-form">
-                    <input
-                        type="hidden"
-                        id="edit-transaction-id"
-                    >
+                <section class="balance-card summary-card" aria-labelledby="balance-label">
+                    <span id="balance-label" class="summary-label">ยอดคงเหลือ</span>
+                    <strong id="balance-value" class="balance-value">฿0.00</strong>
+                    <span id="home-period-label" class="summary-caption">เดือนนี้</span>
+                </section>
 
-                    <label class="form-label">
-                        ประเภท
-                        <select
-                            id="edit-type"
-                            class="form-control"
-                            required
+                <div class="summary-grid" aria-label="สรุปรายรับรายจ่าย">
+                    <section class="summary-card mini-card">
+                        <span class="summary-label">รายรับ</span>
+                        <strong id="income-value" class="amount-positive">+฿0.00</strong>
+                    </section>
+
+                    <section class="summary-card mini-card">
+                        <span class="summary-label">รายจ่าย</span>
+                        <strong id="expense-value" class="amount-negative">−฿0.00</strong>
+                    </section>
+                </div>
+
+                <section class="section-block" aria-labelledby="chart-title">
+                    <div class="section-heading">
+                        <div>
+                            <h2 id="chart-title">สัดส่วนรายจ่าย</h2>
+                            <p id="chart-subtitle">ดูหมวดที่ใช้จ่ายมากที่สุด</p>
+                        </div>
+                    </div>
+
+                    <div id="chart-loading" class="chart-loading skeleton-block hidden"></div>
+
+                    <div id="chart-content" class="chart-layout">
+                        <div
+                            id="expense-chart"
+                            class="donut-chart empty"
+                            role="img"
+                            aria-label="ยังไม่มีข้อมูลรายจ่าย"
                         >
-                            <option value="income">
-                                รายรับ
-                            </option>
+                            <span id="chart-center-value">0%</span>
+                        </div>
 
-                            <option value="expense">
-                                รายจ่าย
-                            </option>
-                        </select>
-                    </label>
+                        <div id="chart-legend" class="chart-legend"></div>
+                    </div>
 
-                    <label class="form-label">
-                        หมวดหมู่
-                        <select
-                            id="edit-category"
-                            class="form-control"
-                            required
-                        ></select>
-                    </label>
+                    <div id="chart-empty" class="empty-inline hidden">
+                        ยังไม่มีรายจ่ายในช่วงเวลานี้
+                    </div>
+                </section>
 
-                    <label class="form-label">
-                        จำนวนเงิน
-                        <input
-                            id="edit-amount"
-                            class="form-control"
-                            type="number"
-                            min="0.01"
-                            step="0.01"
-                            required
-                        >
-                    </label>
-
-                    <label class="form-label">
-                        วันที่
-                        <input
-                            id="edit-date"
-                            class="form-control"
-                            type="date"
-                            required
-                        >
-                    </label>
-
-                    <label class="form-label">
-                        หมายเหตุ
-                        <textarea
-                            id="edit-note"
-                            class="form-control"
-                            rows="3"
-                            maxlength="300"
-                        ></textarea>
-                    </label>
-
-                    <div class="modal-actions">
-                        <button
-                            type="button"
-                            class="secondary-button"
-                            data-close-modal
-                        >
-                            ยกเลิก
-                        </button>
-
-                        <button
-                            id="save-edit-button"
-                            type="submit"
-                            class="primary-button"
-                        >
-                            บันทึก
+                <section class="section-block" aria-labelledby="recent-title">
+                    <div class="section-heading">
+                        <div>
+                            <h2 id="recent-title">รายการล่าสุด</h2>
+                            <p id="transaction-count">0 รายการ</p>
+                        </div>
+                        <button id="view-all-button" class="text-button" type="button">
+                            ดูทั้งหมด
                         </button>
                     </div>
-                </form>
-            </div>
-        </div>
-        <div id="error-box" class="error-box hidden">
-        </div>
+
+                    <div id="recent-skeleton" class="list-skeleton hidden" aria-hidden="true">
+                        <div class="skeleton-row"></div>
+                        <div class="skeleton-row"></div>
+                        <div class="skeleton-row"></div>
+                    </div>
+
+                    <div id="recent-list" class="transaction-list compact-list"></div>
+
+                    <div id="home-empty-state" class="empty-state hidden">
+                        <div class="empty-symbol" aria-hidden="true">฿</div>
+                        <h3>ยังไม่มีรายการในช่วงเวลานี้</h3>
+                        <p>เริ่มบันทึกรายรับรายจ่ายผ่านแชต LINE ได้เลย</p>
+                    </div>
+                </section>
+            </section>
+
+            <section
+                id="history-tab"
+                class="tab-panel hidden"
+                aria-labelledby="history-nav-button"
+            >
+                <div class="history-header">
+                    <div>
+                        <h2>ประวัติ</h2>
+                        <p id="history-subtitle">รายการทั้งหมด</p>
+                    </div>
+
+                    <button
+                        id="history-options-button"
+                        class="icon-button history-menu-button"
+                        type="button"
+                        aria-label="เปิดเมนูตัวเลือก"
+                    >
+                        <span class="three-dot-icon" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
+                        <span id="filter-badge" class="filter-badge hidden"></span>
+                    </button>
+                </div>
+
+                <label class="search-field" for="transaction-search">
+                    <span class="search-icon" aria-hidden="true">⌕</span>
+                    <input
+                        id="transaction-search"
+                        type="search"
+                        placeholder="ค้นหารายการ"
+                        autocomplete="off"
+                    >
+                </label>
+
+                <div id="active-filter-chips" class="filter-chip-row" aria-live="polite"></div>
+
+                <div id="history-skeleton" class="list-skeleton hidden" aria-hidden="true">
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                </div>
+
+                <div id="transaction-list" class="transaction-groups"></div>
+
+                <div id="empty-state" class="empty-state hidden">
+                    <div class="empty-symbol" aria-hidden="true">฿</div>
+                    <h3 id="empty-state-title">ไม่พบรายการ</h3>
+                    <p id="empty-state-message">ลองเปลี่ยนช่วงเวลาหรือตัวกรอง</p>
+                </div>
+
+                <button id="load-more-button" class="load-more-button hidden" type="button">
+                    ดูเพิ่มเติม
+                </button>
+            </section>
+        </main>
+
+        <nav class="bottom-nav" aria-label="เมนูหลัก">
+            <button
+                id="home-nav-button"
+                class="nav-button active"
+                type="button"
+                data-tab="home"
+                aria-current="page"
+                aria-label="หน้าแรก"
+            >
+                <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4.5 11.4 12 5.25l7.5 6.15" />
+                    <path d="M6.75 10.2v8.05c0 .83.67 1.5 1.5 1.5h7.5c.83 0 1.5-.67 1.5-1.5V10.2" />
+                    <path d="M10 19.75v-5.1c0-.55.45-1 1-1h2c.55 0 1 .45 1 1v5.1" />
+                    <circle cx="17.5" cy="6.5" r="2.25" />
+                </svg>
+            </button>
+
+            <button
+                id="history-nav-button"
+                class="nav-button"
+                type="button"
+                data-tab="history"
+                aria-label="ประวัติ"
+            >
+                <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 6.75h11" />
+                    <path d="M8 12h11" />
+                    <path d="M8 17.25h11" />
+                    <path d="M4.75 6.75h.01" />
+                    <path d="M4.75 12h.01" />
+                    <path d="M4.75 17.25h.01" />
+                </svg>
+            </button>
+        </nav>
     </div>
+
+    <div id="sheet-layer" class="sheet-layer hidden" aria-hidden="true">
+        <button
+            id="sheet-backdrop"
+            class="sheet-backdrop"
+            type="button"
+            aria-label="ปิดแผง"
+        ></button>
+
+        <section
+            id="filter-sheet"
+            class="bottom-sheet hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="filter-sheet-title"
+        >
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="sheet-header">
+                <div>
+                    <p class="sheet-eyebrow">ตัวกรอง</p>
+                    <h2 id="filter-sheet-title">เลือกประวัติที่ต้องการดู</h2>
+                </div>
+                <button class="icon-button" type="button" data-close-sheet aria-label="ปิด">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+
+            <form id="filter-form" class="sheet-form">
+                <fieldset class="form-section">
+                    <legend>ประเภทรายการ</legend>
+                    <div class="segmented-control">
+                        <label>
+                            <input type="radio" name="filter-type" value="" checked>
+                            <span>ทั้งหมด</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="filter-type" value="income">
+                            <span>รายรับ</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="filter-type" value="expense">
+                            <span>รายจ่าย</span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-section">
+                    <legend>ช่วงเวลา</legend>
+                    <select id="filter-date-mode" class="form-control">
+                        <option value="all">ทุกช่วงเวลา</option>
+                        <option value="month">เลือกเดือน</option>
+                        <option value="date">เลือกวันที่</option>
+                        <option value="range">ช่วงวันที่</option>
+                    </select>
+
+                    <label id="filter-month-group" class="field-group hidden">
+                        <span>เดือน</span>
+                        <input id="filter-month" class="form-control" type="month">
+                    </label>
+
+                    <label id="filter-date-group" class="field-group hidden">
+                        <span>วันที่</span>
+                        <input id="filter-date" class="form-control" type="date">
+                    </label>
+
+                    <div id="filter-range-group" class="date-range-grid hidden">
+                        <label class="field-group">
+                            <span>จากวันที่</span>
+                            <input id="filter-start-date" class="form-control" type="date">
+                        </label>
+                        <label class="field-group">
+                            <span>ถึงวันที่</span>
+                            <input id="filter-end-date" class="form-control" type="date">
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-section">
+                    <legend>เรียงลำดับ</legend>
+                    <select id="sort-select" class="form-control">
+                        <option value="newest">ใหม่ที่สุด</option>
+                        <option value="oldest">เก่าที่สุด</option>
+                        <option value="highest">จำนวนเงินมากที่สุด</option>
+                        <option value="lowest">จำนวนเงินน้อยที่สุด</option>
+                    </select>
+                </fieldset>
+
+                <div class="sheet-actions">
+                    <button id="reset-filter-button" class="secondary-button" type="button">
+                        ล้างตัวกรอง
+                    </button>
+                    <button id="apply-filter-button" class="primary-button" type="submit">
+                        ใช้ตัวกรอง
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section
+            id="detail-sheet"
+            class="bottom-sheet hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="detail-sheet-title"
+        >
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="sheet-header">
+                <div>
+                    <p id="detail-type-label" class="sheet-eyebrow">รายการ</p>
+                    <h2 id="detail-sheet-title">รายละเอียดรายการ</h2>
+                </div>
+                <button class="icon-button" type="button" data-close-sheet aria-label="ปิด">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+
+            <div class="detail-amount" id="detail-amount">฿0.00</div>
+            <dl class="detail-list">
+                <div>
+                    <dt>หมวดหมู่</dt>
+                    <dd id="detail-category">-</dd>
+                </div>
+                <div>
+                    <dt>หมายเหตุ</dt>
+                    <dd id="detail-note">-</dd>
+                </div>
+                <div>
+                    <dt>วันที่ทำรายการ</dt>
+                    <dd id="detail-date">-</dd>
+                </div>
+                <div>
+                    <dt>บันทึกเมื่อ</dt>
+                    <dd id="detail-created-at">-</dd>
+                </div>
+            </dl>
+
+            <div class="sheet-actions">
+                <button id="detail-delete-button" class="danger-outline-button" type="button">
+                    ลบรายการ
+                </button>
+                <button id="detail-edit-button" class="primary-button" type="button">
+                    แก้ไขรายการ
+                </button>
+            </div>
+        </section>
+
+        <section
+            id="edit-sheet"
+            class="bottom-sheet hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-sheet-title"
+        >
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="sheet-header">
+                <div>
+                    <p class="sheet-eyebrow">แก้ไข</p>
+                    <h2 id="edit-sheet-title">แก้ไขรายการ</h2>
+                </div>
+                <button class="icon-button" type="button" data-close-sheet aria-label="ปิด">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+
+            <form id="edit-transaction-form" class="sheet-form" novalidate>
+                <input id="edit-transaction-id" type="hidden">
+
+                <label class="field-group">
+                    <span>ประเภทรายการ</span>
+                    <select id="edit-type" class="form-control" required>
+                        <option value="income">รายรับ</option>
+                        <option value="expense">รายจ่าย</option>
+                    </select>
+                    <small id="edit-type-error" class="field-error"></small>
+                </label>
+
+                <label class="field-group">
+                    <span>หมวดหมู่</span>
+                    <select id="edit-category" class="form-control" required></select>
+                    <small id="edit-category-error" class="field-error"></small>
+                </label>
+
+                <label class="field-group">
+                    <span>จำนวนเงิน</span>
+                    <input
+                        id="edit-amount"
+                        class="form-control"
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        inputmode="decimal"
+                        required
+                    >
+                    <small id="edit-amount-error" class="field-error"></small>
+                </label>
+
+                <label class="field-group">
+                    <span>วันที่ทำรายการ</span>
+                    <input id="edit-date" class="form-control" type="date" required>
+                    <small id="edit-date-error" class="field-error"></small>
+                </label>
+
+                <label class="field-group">
+                    <span>หมายเหตุ</span>
+                    <textarea
+                        id="edit-note"
+                        class="form-control"
+                        rows="3"
+                        maxlength="300"
+                    ></textarea>
+                    <small id="edit-note-error" class="field-error"></small>
+                </label>
+
+                <div class="sticky-actions">
+                    <button class="secondary-button" type="button" data-close-sheet>
+                        ยกเลิก
+                    </button>
+                    <button id="save-edit-button" class="primary-button" type="submit">
+                        บันทึกการเปลี่ยนแปลง
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section
+            id="delete-sheet"
+            class="bottom-sheet hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-sheet-title"
+        >
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="sheet-header">
+                <div>
+                    <p class="sheet-eyebrow danger-text">ลบรายการ</p>
+                    <h2 id="delete-sheet-title">ยืนยันการลบ</h2>
+                </div>
+                <button class="icon-button" type="button" data-close-sheet aria-label="ปิด">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+
+            <p id="delete-description" class="delete-description">
+                รายการนี้จะถูกลบถาวรและไม่สามารถย้อนกลับได้
+            </p>
+
+            <div class="sheet-actions">
+                <button class="secondary-button" type="button" data-close-sheet>
+                    ยกเลิก
+                </button>
+                <button id="confirm-delete-button" class="danger-button" type="button">
+                    ลบรายการ
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
     <script
         charset="utf-8"
         src="https://static.line-scdn.net/liff/edge/2/sdk.js"
     ></script>
-
-    <script src="./app.js?v=6" defer></script>
+    <script src="./app.js?v=10" defer></script>
 </body>
 </html>
