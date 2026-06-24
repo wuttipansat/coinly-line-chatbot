@@ -1,10 +1,19 @@
 from pathlib import Path
+import logging
+import sys
 
 from fastapi import FastAPI, Response
 from fastapi.staticfiles import StaticFiles
 
 from app.api.line_webhook import router as line_router
 from app.api.liff import router as liff_router
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+    force=True
+)
 
 APP_DIR = Path(__file__).resolve().parent
 
