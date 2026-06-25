@@ -115,9 +115,9 @@ def get_category_display(
 def build_transaction_list_action() -> dict:
     return {
         "type": "postback",
-        "label": "ดูรายการทั้งหมด",
+        "label": "ดูรายการล่าสุด",
         "data": "action=list_transactions",
-        "displayText": "ดูรายการทั้งหมด",
+        "displayText": "รายการ",
     }
 
 
@@ -178,10 +178,9 @@ def reply_transaction_card(
     note = (transaction.get("note") or "").strip()
 
     detail_rows = [
-        receipt_detail_row("ประเภท", style["label"]),
         receipt_detail_row(
             "หมวดหมู่",
-            f"{category['icon']} {category['label']}",
+            f"{category['icon']}",
             max_lines=2,
         ),
     ]
@@ -215,14 +214,14 @@ def reply_transaction_card(
             "type": "box",
             "layout": "vertical",
             "paddingAll": "0px",
-            "height": "112px",
+            "height": "50px",
             "background": {
                 "type": "linearGradient",
                 "angle": "135deg",
                 "startColor": "#FFD384",
-                "centerColor": "#FCDA9B",
+                "centerColor": "#DBB671",
                 "centerPosition": "55%",
-                "endColor": "#FBE7C2",
+                "endColor": "#B6975F",
             },
             "contents": [
                 {
@@ -273,39 +272,39 @@ def reply_transaction_card(
                 #         }
                 #     ],
                 # },
-                {
-                    "type": "box",
-                    "layout": "horizontal",
-                    "paddingStart": "20px",
-                    "paddingEnd": "20px",
-                    "paddingTop": "20px",
-                    "spacing": "md",
-                    "contents": [
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "spacing": "xs",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "Coinly",
-                                    "size": "md",
-                                    "weight": "bold",
-                                    "color": "#FFFFFF",
-                                    "wrap": False,
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "บันทึกรายการสำเร็จ",
-                                    "size": "xs",
-                                    "color": "#F4E9FF",
-                                    "wrap": False,
-                                    "maxLines": 1,
-                                },
-                            ],
-                        },
-                    ],
-                }
+                # {
+                #     "type": "box",
+                #     "layout": "horizontal",
+                #     "paddingStart": "20px",
+                #     "paddingEnd": "20px",
+                #     "paddingTop": "20px",
+                #     "spacing": "md",
+                #     "contents": [
+                #         {
+                #             "type": "box",
+                #             "layout": "vertical",
+                #             "spacing": "xs",
+                #             "contents": [
+                #                 {
+                #                     "type": "text",
+                #                     "text": "Coinly",
+                #                     "size": "md",
+                #                     "weight": "bold",
+                #                     "color": "#FFFFFF",
+                #                     "wrap": False,
+                #                 },
+                #                 {
+                #                     "type": "text",
+                #                     "text": "บันทึกรายการสำเร็จ",
+                #                     "size": "xs",
+                #                     "color": "#F4E9FF",
+                #                     "wrap": False,
+                #                     "maxLines": 1,
+                #                 },
+                #             ],
+                #         },
+                #     ],
+                # }
             ],
         },
         "body": {
@@ -366,7 +365,7 @@ def reply_transaction_card(
                 {
                     "type": "button",
                     "style": "primary",
-                    "height": "md",
+                    "height": "sm",
                     "color": "#FFD384",
                     "margin": "xl",
                     "action": build_transaction_list_action(),
