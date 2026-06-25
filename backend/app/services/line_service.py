@@ -55,7 +55,7 @@ def reply_transaction_card(
 
     flex_content = {
         "type": "bubble",
-        "size": "mega",
+        "size": "micro",
         "styles": {
             "header": {
                 "backgroundColor": "#FFFDF8"
