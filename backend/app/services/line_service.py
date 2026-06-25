@@ -170,7 +170,7 @@ def reply_transaction_card(
     detail_rows = [
         receipt_detail_row(
             "หมวดหมู่",
-            f"{category['icon']}",
+            f"{category['icon']} {category['label']}",
             max_lines=2,
         ),
     ]
@@ -208,10 +208,10 @@ def reply_transaction_card(
             "background": {
                 "type": "linearGradient",
                 "angle": "135deg",
-                "endColor": "#F9DCA6",
-                "centerColor": "#FBD896",
+                "endColor": "#FFDC9B",
+                "centerColor": "#FCD58D",
                 "centerPosition": "55%",
-                "startColor": "#FFD384",
+                "startColor": "#FED370",
             },
             "contents": [
                 {
@@ -221,28 +221,27 @@ def reply_transaction_card(
                     "width": "154px",
                     "height": "154px",
                     "cornerRadius": "77px",
-                    "borderWidth": "32px",
+                    "borderWidth": "12px",
                     "borderColor": "#FFFFFF26",
                     "offsetTop": "-18px",
                     "offsetEnd": "-36px",
+                    "justifyContent": "center",
+                    "alignItems": "center",
                     "contents": [
-                        {"type": "filler"}
-                    ],
-                },
-
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "position": "absolute",
-                    "width": "100px",
-                    "height": "100px",
-                    "cornerRadius": "77px",
-                    "borderWidth": "32px",
-                    "borderColor": "#FFFFFF26",
-                    "offsetTop": "-18px",
-                    "offsetEnd": "-36px",
-                    "contents": [
-                        {"type": "filler"}
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "width": "100px",
+                            "height": "100px",
+                            "cornerRadius": "50px",
+                            "borderWidth": "12px",
+                            "borderColor": "#FFFFFF26",
+                            "contents": [
+                                {
+                                    "type": "filler"
+                                }
+                            ],
+                        }
                     ],
                 }
 
@@ -356,7 +355,7 @@ def reply_transaction_card(
                     "type": "box",
                     "layout": "vertical",
                     "height": "40px",
-                    "backgroundColor": "#FFD384",
+                    "backgroundColor": "#FED370",
                     "cornerRadius": "8px",
                     "justifyContent": "center",
                     "alignItems": "center",
