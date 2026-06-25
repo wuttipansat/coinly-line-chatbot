@@ -41,12 +41,14 @@ TRANSACTION_STYLES = {
         "label": "รายจ่าย",
         "accent": "#FFAEC0",
         "tint": "#FFF3F6",
+        "amount_color": "#B3261E",
         "sign": "−",
     },
     "income": {
         "label": "รายรับ",
         "accent": "#FFD384",
         "tint": "#FFF7E6",
+        "amount_color": "#2F7D4A",
         "sign": "+",
     },
 }
@@ -118,6 +120,38 @@ def build_transaction_list_action() -> dict:
         "displayText": "ดูรายการทั้งหมด",
     }
 
+
+def receipt_detail_row(
+        label: str,
+        value: str,
+        max_lines: int = 1,
+) -> dict:
+    return {
+        "type": "box",
+        "layout": "horizontal",
+        "spacing": "sm",
+        "contents": [
+            {
+                "type": "text",
+                "text": label,
+                "size": "sm",
+                "color": "#777777",
+                "flex": 5,
+                "wrap": False,
+            },
+            {
+                "type": "text",
+                "text": value,
+                "size": "sm",
+                "color": "#4A4A4A",
+                "align": "end",
+                "flex": 7,
+                "wrap": True,
+                "maxLines": max_lines,
+            },
+        ],
+    }
+
 def reply_text(reply_token: str, text: str) -> None:
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
@@ -143,195 +177,163 @@ def reply_transaction_card(
     )
     note = (transaction.get("note") or "").strip()
 
-    right_contents = [
-        {
-            "type": "text",
-            "text": f"{category['icon']} {category['label']}",
-            "weight": "bold",
-            "size": "sm",
-            "color": "#2F2F2F",
-            "wrap": True,
-            "maxLines": 2,
-        },
+    detail_rows = [
+        receipt_detail_row("ประเภท", style["label"]),
+        receipt_detail_row(
+            "หมวดหมู่",
+            f"{category['icon']} {category['label']}",
+            max_lines=2,
+        ),
     ]
 
     if note:
-        right_contents.append(
-            {
-                "type": "text",
-                "text": note,
-                "size": "xs",
-                "color": "#2F2F2F",
-                "wrap": True,
-                "maxLines": 2,
-                "margin": "xs",
-            }
+        detail_rows.append(
+            receipt_detail_row("โน้ต", note, max_lines=2)
         )
 
-    right_contents.extend(
-        [
-            {
-                "type": "text",
-                "text": format_thai_short_date(
-                    transaction.get("transaction_date")
-                ),
-                "size": "xxs",
-                "color": "#777777",
-                "wrap": True,
-                "maxLines": 1,
-                "margin": "xs",
-            },
-            {
-                "type": "button",
-                "style": "primary",
-                "height": "sm",
-                "color": "#2F2F2F",
-                "margin": "sm",
-                "action": build_transaction_list_action(),
-            },
-        ]
+    detail_rows.append(
+        receipt_detail_row(
+            "วันที่",
+            format_thai_short_date(
+                transaction.get("transaction_date")
+            ),
+        )
     )
 
     flex_content = {
         "type": "bubble",
         "size": "mega",
         "styles": {
+            "header": {
+                "backgroundColor": "#7B1FEA"
+            },
             "body": {
                 "backgroundColor": "#FFFFFF"
             }
         },
-        "body": {
+        "header": {
             "type": "box",
-            "layout": "horizontal",
-            "spacing": "sm",
-            "paddingAll": "12px",
+            "layout": "vertical",
+            "paddingAll": "0px",
+            "backgroundColor": "#7B1FEA",
             "contents": [
                 {
                     "type": "box",
-                    "layout": "vertical",
-                    "flex": 6,
-                    "backgroundColor": style["tint"],
-                    "cornerRadius": "12px",
-                    "paddingAll": "12px",
-                    "spacing": "xs",
+                    "layout": "horizontal",
+                    "height": "88px",
+                    "paddingStart": "20px",
+                    "paddingEnd": "20px",
+                    "paddingTop": "18px",
+                    "spacing": "md",
                     "contents": [
                         {
                             "type": "box",
-                            "layout": "horizontal",
+                            "layout": "vertical",
+                            "width": "46px",
+                            "height": "46px",
+                            "backgroundColor": "#F8F0FF",
+                            "cornerRadius": "23px",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "✓",
+                                    "size": "xl",
+                                    "weight": "bold",
+                                    "color": "#7B1FEA",
+                                    "align": "center",
+                                    "gravity": "center",
+                                }
+                            ],
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
                             "spacing": "xs",
                             "contents": [
                                 {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "width": "18px",
-                                    "height": "18px",
-                                    "backgroundColor": "#FFFFFF",
-                                    "cornerRadius": "9px",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "✓",
-                                            "size": "xxs",
-                                            "weight": "bold",
-                                            "color": style["accent"],
-                                            "align": "center",
-                                        }
-                                    ],
+                                    "type": "text",
+                                    "text": "Coinly",
+                                    "size": "sm",
+                                    "weight": "bold",
+                                    "color": "#FFFFFF",
+                                    "wrap": False,
                                 },
                                 {
                                     "type": "text",
-                                    "text": "บันทึกแล้ว",
-                                    "size": "xxs",
-                                    "weight": "bold",
-                                    "color": "#777777",
-                                    "gravity": "center",
+                                    "text": "บันทึกรายการสำเร็จ",
+                                    "size": "xs",
+                                    "color": "#F4E9FF",
                                     "wrap": False,
                                     "maxLines": 1,
                                 },
                             ],
                         },
-                        {
-                            "type": "box",
-                            "layout": "baseline",
-                            "spacing": "xs",
-                            "margin": "md",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": format_transaction_amount(
-                                        transaction.get("amount", 0),
-                                        transaction_type,
-                                    ),
-                                    "weight": "bold",
-                                    "size": "xxl",
-                                    "color": "#2F2F2F",
-                                    "flex": 1,
-                                    "wrap": False,
-                                    "adjustMode": "shrink-to-fit",
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "บาท",
-                                    "size": "xxs",
-                                    "color": "#777777",
-                                    "flex": 0,
-                                    "margin": "xs",
-                                    "wrap": False,
-                                },
-                            ],
-                        },
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "spacing": "xs",
-                            "margin": "sm",
-                            "contents": [
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "backgroundColor": style["accent"],
-                                    "cornerRadius": "10px",
-                                    "paddingStart": "8px",
-                                    "paddingEnd": "8px",
-                                    "paddingTop": "3px",
-                                    "paddingBottom": "3px",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": style["label"],
-                                            "size": "xxs",
-                                            "weight": "bold",
-                                            "color": "#2F2F2F",
-                                            "align": "center",
-                                            "wrap": False,
-                                        }
-                                    ],
-                                },
-                                {
-                                    "type": "filler",
-                                },
-                            ],
-                        },
                     ],
+                }
+            ],
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "paddingAll": "20px",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "บันทึกรายการแล้ว",
+                    "size": "xl",
+                    "color": "#4A4A4A",
+                    "wrap": True,
+                    "maxLines": 1,
                 },
                 {
                     "type": "box",
-                    "layout": "vertical",
-                    "width": "1px",
-                    "backgroundColor": "#EEEEEE",
+                    "layout": "baseline",
+                    "spacing": "sm",
                     "contents": [
                         {
-                            "type": "filler",
-                        }
+                            "type": "text",
+                            "text": format_transaction_amount(
+                                transaction.get("amount", 0),
+                                transaction_type,
+                            ),
+                            "size": "xxl",
+                            "weight": "bold",
+                            "color": style["amount_color"],
+                            "flex": 0,
+                            "wrap": False,
+                            "adjustMode": "shrink-to-fit",
+                        },
+                        {
+                            "type": "text",
+                            "text": "บาท",
+                            "size": "lg",
+                            "color": style["amount_color"],
+                            "flex": 0,
+                            "margin": "sm",
+                            "wrap": False,
+                        },
                     ],
+                },
+                {
+                    "type": "separator",
+                    "margin": "md",
+                    "color": "#DDDDDD",
                 },
                 {
                     "type": "box",
                     "layout": "vertical",
-                    "flex": 5,
-                    "paddingStart": "4px",
-                    "spacing": "xs",
-                    "contents": right_contents,
+                    "spacing": "md",
+                    "margin": "md",
+                    "contents": detail_rows,
+                },
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "height": "md",
+                    "color": "#861FEA",
+                    "margin": "xl",
+                    "action": build_transaction_list_action(),
                 },
             ],
         },
