@@ -218,44 +218,28 @@ def reply_transaction_card(
             "background": {
                 "type": "linearGradient",
                 "angle": "135deg",
-                "startColor": "#FFD384",
+                "endColor": "#FFD384",
                 "centerColor": "#DBB671",
                 "centerPosition": "55%",
-                "endColor": "#B6975F",
+                "startColor": "#B6975F",
             },
             "contents": [
                 {
                     "type": "box",
                     "layout": "vertical",
                     "position": "absolute",
-                    "width": "150px",
-                    "height": "150px",
-                    "cornerRadius": "75px",
-                    "backgroundColor": "#FFFFFF22",
-                    "offsetTop": "-20px",
-                    "offsetEnd": "-38px",
+                    "width": "154px",
+                    "height": "154px",
+                    "cornerRadius": "77px",
+                    "borderWidth": "14px",
+                    "borderColor": "#FFFFFF26",
+                    "offsetTop": "-18px",
+                    "offsetEnd": "-36px",
                     "contents": [
-                        {
-                            "type": "filler",
-                        }
+                        {"type": "filler"}
                     ],
-                },
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "position": "absolute",
-                    "width": "86px",
-                    "height": "86px",
-                    "cornerRadius": "43px",
-                    "backgroundColor": "#FFFFFF14",
-                    "offsetTop": "46px",
-                    "offsetEnd": "42px",
-                    "contents": [
-                        {
-                            "type": "filler",
-                        }
-                    ],
-                },
+                }
+
                 # {
                 #     "type": "box",
                 #     "layout": "vertical",
@@ -475,7 +459,7 @@ def reply_confirmation_card(
                         "type": "postback",
                         "label": "ยืนยัน",
                         "data": confirm_data,
-                        "displayText": "ยืนยัน",
+                        "text": "ยืนยัน",
                     }
                 }
             ],
