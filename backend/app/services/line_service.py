@@ -538,11 +538,6 @@ def reply_summary_card(
     transaction_count = int(summary["transaction_count"])
 
     balance_color = "#57C97F" if balance >= 0 else "#F46E67"
-    balance_status = (
-        "ยอดคงเหลือเป็นบวก"
-        if balance >= 0
-        else "ยอดคงเหลือติดลบ"
-    )
 
     detail_rows = [
         receipt_detail_row(
@@ -560,12 +555,6 @@ def reply_summary_card(
         receipt_detail_row(
             "จำนวนรายการ",
             f"{transaction_count:,} รายการ",
-        ),
-        receipt_detail_row(
-            "สถานะ",
-            balance_status,
-            max_lines=2,
-            value_color=balance_color,
         ),
     ]
 
