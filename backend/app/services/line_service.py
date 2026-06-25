@@ -215,24 +215,79 @@ def reply_transaction_card(
             "type": "box",
             "layout": "vertical",
             "paddingAll": "0px",
-            "backgroundColor": "#7B1FEA",
+            "height": "112px",
+            "background": {
+                "type": "linearGradient",
+                "angle": "135deg",
+                "startColor": "#6D23D9",
+                "centerColor": "#8B22EA",
+                "centerPosition": "55%",
+                "endColor": "#B065F2",
+            },
             "contents": [
                 {
                     "type": "box",
+                    "layout": "vertical",
+                    "position": "absolute",
+                    "width": "150px",
+                    "height": "150px",
+                    "cornerRadius": "75px",
+                    "backgroundColor": "#FFFFFF22",
+                    "offsetTop": "-20px",
+                    "offsetEnd": "-38px",
+                    "contents": [
+                        {
+                            "type": "filler",
+                        }
+                    ],
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "position": "absolute",
+                    "width": "86px",
+                    "height": "86px",
+                    "cornerRadius": "43px",
+                    "backgroundColor": "#FFFFFF14",
+                    "offsetTop": "46px",
+                    "offsetEnd": "42px",
+                    "contents": [
+                        {
+                            "type": "filler",
+                        }
+                    ],
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "position": "absolute",
+                    "width": "28px",
+                    "height": "112px",
+                    "backgroundColor": "#FFFFFF12",
+                    "cornerRadius": "14px",
+                    "offsetTop": "-18px",
+                    "offsetEnd": "118px",
+                    "contents": [
+                        {
+                            "type": "filler",
+                        }
+                    ],
+                },
+                {
+                    "type": "box",
                     "layout": "horizontal",
-                    "height": "88px",
                     "paddingStart": "20px",
                     "paddingEnd": "20px",
-                    "paddingTop": "18px",
+                    "paddingTop": "20px",
                     "spacing": "md",
                     "contents": [
                         {
                             "type": "box",
                             "layout": "vertical",
-                            "width": "46px",
-                            "height": "46px",
+                            "width": "50px",
+                            "height": "50px",
                             "backgroundColor": "#F8F0FF",
-                            "cornerRadius": "23px",
+                            "cornerRadius": "25px",
                             "contents": [
                                 {
                                     "type": "text",
@@ -253,7 +308,7 @@ def reply_transaction_card(
                                 {
                                     "type": "text",
                                     "text": "Coinly",
-                                    "size": "sm",
+                                    "size": "md",
                                     "weight": "bold",
                                     "color": "#FFFFFF",
                                     "wrap": False,
