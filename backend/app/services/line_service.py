@@ -41,14 +41,14 @@ TRANSACTION_STYLES = {
         "label": "รายจ่าย",
         "accent": "#FFAEC0",
         "tint": "#FFF3F6",
-        "amount_color": "#B3261E",
+        "amount_color": "#F46E67",
         "sign": "−",
     },
     "income": {
         "label": "รายรับ",
         "accent": "#FFD384",
         "tint": "#FFF7E6",
-        "amount_color": "#2F7D4A",
+        "amount_color": "#57C97F",
         "sign": "+",
     },
 }
@@ -205,7 +205,7 @@ def reply_transaction_card(
         "size": "mega",
         "styles": {
             "header": {
-                "backgroundColor": "#7B1FEA"
+                "backgroundColor": "#FFD384"
             },
             "body": {
                 "backgroundColor": "#FFFFFF"
@@ -219,10 +219,10 @@ def reply_transaction_card(
             "background": {
                 "type": "linearGradient",
                 "angle": "135deg",
-                "startColor": "#6D23D9",
-                "centerColor": "#8B22EA",
+                "startColor": "#FFD384",
+                "centerColor": "#FCDA9B",
                 "centerPosition": "55%",
-                "endColor": "#B065F2",
+                "endColor": "#FBE7C2",
             },
             "contents": [
                 {
@@ -257,22 +257,22 @@ def reply_transaction_card(
                         }
                     ],
                 },
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "position": "absolute",
-                    "width": "28px",
-                    "height": "112px",
-                    "backgroundColor": "#FFFFFF12",
-                    "cornerRadius": "14px",
-                    "offsetTop": "-18px",
-                    "offsetEnd": "118px",
-                    "contents": [
-                        {
-                            "type": "filler",
-                        }
-                    ],
-                },
+                # {
+                #     "type": "box",
+                #     "layout": "vertical",
+                #     "position": "absolute",
+                #     "width": "28px",
+                #     "height": "112px",
+                #     "backgroundColor": "#FFFFFF12",
+                #     "cornerRadius": "14px",
+                #     "offsetTop": "-18px",
+                #     "offsetEnd": "118px",
+                #     "contents": [
+                #         {
+                #             "type": "filler",
+                #         }
+                #     ],
+                # },
                 {
                     "type": "box",
                     "layout": "horizontal",
@@ -281,25 +281,6 @@ def reply_transaction_card(
                     "paddingTop": "20px",
                     "spacing": "md",
                     "contents": [
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "width": "50px",
-                            "height": "50px",
-                            "backgroundColor": "#F8F0FF",
-                            "cornerRadius": "25px",
-                            "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "✓",
-                                    "size": "xl",
-                                    "weight": "bold",
-                                    "color": "#7B1FEA",
-                                    "align": "center",
-                                    "gravity": "center",
-                                }
-                            ],
-                        },
                         {
                             "type": "box",
                             "layout": "vertical",
@@ -386,7 +367,7 @@ def reply_transaction_card(
                     "type": "button",
                     "style": "primary",
                     "height": "md",
-                    "color": "#861FEA",
+                    "color": "#FFD384",
                     "margin": "xl",
                     "action": build_transaction_list_action(),
                 },
