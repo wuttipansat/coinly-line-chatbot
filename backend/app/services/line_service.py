@@ -111,16 +111,6 @@ def get_category_display(
         "label": category_key or "ไม่ระบุหมวดหมู่",
     }
 
-
-def build_transaction_list_action() -> dict:
-    return {
-        "type": "postback",
-        "label": "ดูรายการล่าสุด",
-        "data": "action=list_transactions",
-        "displayText": "รายการ",
-    }
-
-
 def receipt_detail_row(
         label: str,
         value: str,
@@ -218,10 +208,10 @@ def reply_transaction_card(
             "background": {
                 "type": "linearGradient",
                 "angle": "135deg",
-                "endColor": "#FFD384",
-                "centerColor": "#DBB671",
+                "endColor": "#F9DCA6",
+                "centerColor": "#FBD896",
                 "centerPosition": "55%",
-                "startColor": "#B6975F",
+                "startColor": "#FFD384",
             },
             "contents": [
                 {
@@ -231,6 +221,22 @@ def reply_transaction_card(
                     "width": "154px",
                     "height": "154px",
                     "cornerRadius": "77px",
+                    "borderWidth": "14px",
+                    "borderColor": "#FFFFFF26",
+                    "offsetTop": "-18px",
+                    "offsetEnd": "-36px",
+                    "contents": [
+                        {"type": "filler"}
+                    ],
+                },
+
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "position": "absolute",
+                    "width": "128px",
+                    "height": "128px",
+                    "cornerRadius": "60px",
                     "borderWidth": "14px",
                     "borderColor": "#FFFFFF26",
                     "offsetTop": "-18px",
@@ -347,13 +353,30 @@ def reply_transaction_card(
                     "contents": detail_rows,
                 },
                 {
-                    "type": "button",
-                    "style": "primary",
-                    "height": "sm",
-                    "color": "#FFD384",
-                    "margin": "xl",
-                    "action": build_transaction_list_action(),
-                },
+                    "type": "box",
+                    "layout": "vertical",
+                    "height": "40px",
+                    "backgroundColor": "#D4AF37",
+                    "cornerRadius": "8px",
+                    "justifyContent": "center",
+                    "alignItems": "center",
+                    "action": {
+                        "type": "message",
+                        "label": "ดูรายการล่าสุด",
+                        "text": "รายการ",
+                    },
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "ดูรายการล่าสุด",
+                            "color": "#5A3A00",
+                            "size": "sm",
+                            "weight": "bold",
+                            "align": "center",
+                            "gravity": "center",
+                        }
+                    ],
+                }
             ],
         },
     }
