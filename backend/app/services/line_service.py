@@ -40,11 +40,13 @@ TRANSACTION_STYLES = {
     "expense": {
         "label": "รายจ่าย",
         "accent": "#FFAEC0",
+        "tint": "#FFF3F6",
         "sign": "−",
     },
     "income": {
         "label": "รายรับ",
         "accent": "#FFD384",
+        "tint": "#FFF7E6",
         "sign": "+",
     },
 }
@@ -207,35 +209,52 @@ def reply_transaction_card(
                 {
                     "type": "box",
                     "layout": "vertical",
-                    "width": "5px",
-                    "backgroundColor": style["accent"],
-                    "cornerRadius": "xxl",
-                    "contents": [
-                        {
-                            "type": "filler",
-                        }
-                    ],
-                },
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "flex": 5,
+                    "flex": 6,
+                    "backgroundColor": style["tint"],
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
                     "spacing": "xs",
                     "contents": [
                         {
-                            "type": "text",
-                            "text": "✓ บันทึกรายการแล้ว",
-                            "weight": "bold",
-                            "size": "xxs",
-                            "color": "#777777",
-                            "wrap": False,
-                            "maxLines": 1,
+                            "type": "box",
+                            "layout": "horizontal",
+                            "spacing": "xs",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "width": "18px",
+                                    "height": "18px",
+                                    "backgroundColor": "#FFFFFF",
+                                    "cornerRadius": "9px",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "✓",
+                                            "size": "xxs",
+                                            "weight": "bold",
+                                            "color": style["accent"],
+                                            "align": "center",
+                                        }
+                                    ],
+                                },
+                                {
+                                    "type": "text",
+                                    "text": "บันทึกแล้ว",
+                                    "size": "xxs",
+                                    "weight": "bold",
+                                    "color": "#777777",
+                                    "gravity": "center",
+                                    "wrap": False,
+                                    "maxLines": 1,
+                                },
+                            ],
                         },
                         {
                             "type": "box",
                             "layout": "baseline",
                             "spacing": "xs",
-                            "margin": "sm",
+                            "margin": "md",
                             "contents": [
                                 {
                                     "type": "text",
@@ -244,7 +263,7 @@ def reply_transaction_card(
                                         transaction_type,
                                     ),
                                     "weight": "bold",
-                                    "size": "xl",
+                                    "size": "xxl",
                                     "color": "#2F2F2F",
                                     "flex": 1,
                                     "wrap": False,
@@ -263,37 +282,55 @@ def reply_transaction_card(
                         },
                         {
                             "type": "box",
-                            "layout": "vertical",
-                            "backgroundColor": style["accent"],
-                            "cornerRadius": "12px",
-                            "paddingStart": "8px",
-                            "paddingEnd": "8px",
-                            "paddingTop": "3px",
-                            "paddingBottom": "3px",
+                            "layout": "horizontal",
+                            "spacing": "xs",
                             "margin": "sm",
                             "contents": [
                                 {
-                                    "type": "text",
-                                    "text": style["label"],
-                                    "size": "xxs",
-                                    "weight": "bold",
-                                    "color": "#2F2F2F",
-                                    "align": "center",
-                                    "wrap": False,
-                                }
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "backgroundColor": style["accent"],
+                                    "cornerRadius": "10px",
+                                    "paddingStart": "8px",
+                                    "paddingEnd": "8px",
+                                    "paddingTop": "3px",
+                                    "paddingBottom": "3px",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": style["label"],
+                                            "size": "xxs",
+                                            "weight": "bold",
+                                            "color": "#2F2F2F",
+                                            "align": "center",
+                                            "wrap": False,
+                                        }
+                                    ],
+                                },
+                                {
+                                    "type": "filler",
+                                },
                             ],
                         },
                     ],
                 },
                 {
-                    "type": "separator",
-                    "color": "#EEEEEE",
+                    "type": "box",
+                    "layout": "vertical",
+                    "width": "1px",
+                    "backgroundColor": "#EEEEEE",
+                    "contents": [
+                        {
+                            "type": "filler",
+                        }
+                    ],
                 },
                 {
                     "type": "box",
                     "layout": "vertical",
-                    "flex": 4,
-                    "spacing": "none",
+                    "flex": 5,
+                    "paddingStart": "4px",
+                    "spacing": "xs",
                     "contents": right_contents,
                 },
             ],
