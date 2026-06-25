@@ -13,7 +13,7 @@ from linebot.v3.messaging import (
 
 from app.core.config import settings
 from app.services.pending_transaction_store import create_pending_transaction
-from app.utils.format import compact_text, format_transaction_date, format_amount, category_label, meaningful_note
+
 
 configuration = Configuration(
     access_token=settings.LINE_CHANNEL_ACCESS_TOKEN
@@ -36,120 +36,122 @@ def reply_transaction_card(
         reply_token: str,
         transaction: dict,
 ) -> None:
-    transaction_type = compact_text(transaction.get("type"), "expense").lower()
+    amount = float(transaction["amount"])
+    transaction_type = transaction["type"]
 
     if transaction_type == "income":
         type_label = "รายรับ"
-        status_text = "บันทึกรายรับแล้ว"
-        amount_prefix = "+"
-        accent_color = "#FFD384"
+        title = "บันทึกรายรับสำเร็จ"
+        amount_color = "#16A34A"
+        type_emoji = "💰"
     else:
         type_label = "รายจ่าย"
-        status_text = "บันทึกรายจ่ายแล้ว"
-        amount_prefix = "−"
-        accent_color = "#FFAEC0"
+        title = "บันทึกรายจ่ายสำเร็จ"
+        amount_color = "#DC2626"
+        type_emoji = "💸"
 
-    amount_color = "#2D2926"
-    category_text = category_label(transaction_type, transaction.get("category"))
-    date_text =format_transaction_date(transaction.get("transaction_date"))
-    amount_text = f"{amount_prefix}฿{format_amount(transaction.get('amount'))}"
-    note_text = meaningful_note(transaction.get("note"))
-
-    contents = [
-        {
-            "type": "box",
-            "layout": "horizontal",
-            "spacing": "xs",
-            "contents": [
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "backgroundColor": accent_color,
-                    "cornerRadius": "8px",
-                    "paddingStart": "6px",
-                    "paddingEnd": "6px",
-                    "paddingTop": "2px",
-                    "paddingBottom": "2px",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": type_label,
-                            "size": "xxs",
-                            "weight": "bold",
-                            "color": "#2D2926",
-                        }
-                    ],
-                },
-                {
-                    "type": "text",
-                    "text": "✓ บันทึกแล้ว",
-                    "size": "xxs",
-                    "color": "#77716C",
-                    "flex": 3,
-                    "margin": "xs",
-                },
-                {
-                    "type": "text",
-                    "text": "Coinly",
-                    "size": "xxs",
-                    "color": "#77716C",
-                    "align": "end",
-                    "flex": 2,
-                },
-            ],
-        },
-        {
-            "type": "text",
-            "text": amount_text,
-            "weight": "bold",
-            "size": "xl",
-            "color": amount_color,
-            "margin": "xs",
-            "maxLines": 1,
-        },
-        {
-            "type": "text",
-            "text": f"{category_text} · {date_text}",
-            "size": "xxs",
-            "color": "#77716C",
-            "margin": "xs",
-            "maxLines": 1,
-        },
-    ]
-
-    if note_text:
-        contents.append(
-            {
-                "type": "text",
-                "text": note_text,
-                "size": "xs",
-                "color": "#2D2926",
-                "wrap": True,
-                "maxLines": 2,
-                "margin": "xs",
-            }
-        )
 
     flex_content = {
         "type": "bubble",
-        "size": "nano",
+        "size": "mega",
+        "styles": {
+            "body": {
+                "backgroundColor": "#FFF8E1"
+            },
+            "footer": {
+                "backgroundColor": "#FFF8E1"
+            }
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#D4AF37",
+            "paddingAll": "18px",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "🐷 Coinly",
+                    "weight": "bold",
+                    "size": "xl",
+                    "color": "#3A2A0A"
+                },
+                {
+                    "type": "text",
+                    "text": "ผู้ช่วยบันทึกรายรับรายจ่าย",
+                    "size": "xs",
+                    "color": "#5C4510",
+                    "margin": "xs"
+                }
+            ]
+        },
         "body": {
             "type": "box",
             "layout": "vertical",
-            "backgroundColor": "#FFFFFF",
-            "paddingAll": "0px",
+            "spacing": "md",
+            "paddingAll": "18px",
             "contents": [
                 {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#FFF1B8",
+                    "cornerRadius": "16px",
+                    "paddingAll": "16px",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": f"{type_emoji} {title}",
+                            "weight": "bold",
+                            "size": "lg",
+                            "color": "#3A2A0A",
+                            "wrap": True
+                        },
+                        {
+                            "type": "text",
+                            "text": f"{amount:,.2f} บาท",
+                            "weight": "bold",
+                            "size": "xxl",
+                            "color": amount_color,
+                            "margin": "md",
+                            "wrap": True
+                        }
+                    ]
+                },
+                {
                     "type": "separator",
-                    "color": accent_color,
+                    "margin": "md",
+                    "color": "#E0C56E"
                 },
                 {
                     "type": "box",
                     "layout": "vertical",
-                    "paddingAll": "10px",
-                    "spacing": "xs",
-                    "contents": contents,
+                    "spacing": "sm",
+                    "margin": "md",
+                    "contents": [
+                        row_item("วันที่", transaction["transaction_date"]),
+                        row_item("ประเภท", type_label),
+                        row_item("หมวดหมู่", transaction["category"]),
+                        row_item("โน้ต", transaction.get("note") or "-"),
+                    ],
                 },
+            ],
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "sm",
+            "paddingAll": "18px",
+            "contents": [
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "height": "sm",
+                    "color": "#D4AF37",
+                    "action": {
+                        "type": "message",
+                        "label": "ดูรายการล่าสุด",
+                        "text": "รายการ",
+                    },
+                }
             ],
         },
     }
@@ -161,7 +163,7 @@ def reply_transaction_card(
                 reply_token=reply_token,
                 messages=[
                     FlexMessage(
-                        alt_text=f"{status_text}: {amount_text} {category_text}",
+                        alt_text="บันทึกรายการสำเร็จ",
                         contents=FlexContainer.from_dict(flex_content),
                     )
                 ],
