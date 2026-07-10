@@ -22,8 +22,6 @@ categories = get_all_category_descriptions()
 
 MODEL_NAME = "nvidia/nemotron-3-super-120b-a12b:free"
 
-# ChatOpenRouter expects OPENROUTER_API_KEY.
-# Your project currently uses settings.OPENAI_API_KEY, so we map it here.
 if settings.OPENAI_API_KEY:
     os.environ.setdefault("OPENROUTER_API_KEY", settings.OPENAI_API_KEY)
 
