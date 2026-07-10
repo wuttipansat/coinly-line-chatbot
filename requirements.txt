@@ -8,3 +8,5 @@ openai
 line-bot-sdk
 pyyaml
 tzdata
+langchain
+langchain-openrouter
