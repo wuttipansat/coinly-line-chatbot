@@ -152,7 +152,7 @@ def handle_text_message(event):
             reply_text(
                 reply_token=reply_token,
                 text=(
-                    "ขออภัย ตอนนี้ AI ของอู๊ดใช้งานหนาแน่นชั่วคราว 🙏\n"
+                    "ขออภัย🙏 ตอนนี้ AI ของอู๊ดใช้งานหนาแน่นชั่วคราว"
                     "กรุณาส่งรายการอีกครั้งในภายหลัง อู๊ด"
                 )
             )
@@ -161,11 +161,10 @@ def handle_text_message(event):
             reply_text(
                 reply_token,
                 text=(
-                    "ขออภัย บันทึกรายการไม่สำเร็จ อู๊ด 🙏\n"
+                    "ขออภัย🙏 บันทึกรายการไม่สำเร็จ อู๊ด "
                     "กรุณาตรวจสอบข้อความแล้วส่งใหม่อีกครั้ง อู๊ด"
                 )
             )
-
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
@@ -201,5 +200,5 @@ def handle_postback(event):
         print("Postback handling error:", repr(e))
         reply_text(
             reply_token,
-            "ขออภัย ดำเนินการไม่สำเร็จ อู๊ด 🙏\n"
+            "ขออภัย ดำเนินการไม่สำเร็จ อู๊ด 🙏"
         )
