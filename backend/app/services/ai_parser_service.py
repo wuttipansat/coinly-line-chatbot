@@ -59,7 +59,7 @@ Requirements:
 """
     
     response = client.chat.completions.create(
-        model="openai/gpt-oss-120b:free",
+        model="nvidia/nemotron-3-super-120b-a12b:free",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_text}
