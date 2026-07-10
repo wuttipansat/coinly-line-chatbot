@@ -25,8 +25,8 @@ categories:
       icon: "🎁"
 
     other:
-      label: รายรับอื่น ๆ
-      description: รายรับประเภทอื่น ๆ
+      label: รายรับอื่นๆ
+      description: รายรับประเภทอื่นๆ
       icon: "💵"
 
   expense:
@@ -86,6 +86,6 @@ categories:
       icon: "⚽"
 
     other:
-      label: รายจ่ายอื่น ๆ
-      description: รายจ่ายประเภทอื่น ๆ
+      label: รายจ่ายอื่นๆ
+      description: รายจ่ายประเภทอื่นๆ
       icon: "🧾"
