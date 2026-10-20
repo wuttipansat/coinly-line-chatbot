@@ -59,7 +59,7 @@ Requirements:
 """
     
     response = client.chat.completions.create(
-        model="nvidia/nemotron-3-super-120b-a12b:free",
+        model="nvidia/nemotron-3.5-super-vl:free",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_text}
